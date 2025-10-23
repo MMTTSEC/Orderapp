@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node node_modules/react-rapide dev",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "node node_modules/react-rapide preview",
@@ -14,7 +14,7 @@
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "backend": "cd backend && dotnet run --urls http://localhost:5001",
-    "start": "concurrently \"npm run backend\" \"npm run dev\""
+    "start": "node node_modules/react-rapide dev"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
