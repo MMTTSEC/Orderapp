@@ -69,6 +69,7 @@ signing-key.json
 
 # Dependencies
 node_modules/
+package-lock.json
 jspm_packages/
 
 # Production build
