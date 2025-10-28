@@ -1,68 +1,112 @@
+@import url('https: //fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
 :root {
+  /* Vite/React Standard Roots */
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Graphic Profile */
+  /* Colors */
+  --color-background: #F2F2F2;
+  --color-primary: #16703E;
+  --color-secondary: #469BFB; /* Mainly for highlighting personal order */
+
+  --color-white: #FFFFFF; /* Cards/Containers on top of the background */
+  --color-gray-light: #D9D9D9; /* Unselected buttons, misc items, etc */
+  --color-gray-dark: #252525; /* Menu background for signed-in users */
+  --color-black: #000000; /* Mainly Text */
+
+  --color-red: #E70707; /* Delete buttons etc */
+  --color-green: #14A44D; /* Checkmarks etc */
+
+  /* Fonts */
+  --font-primary: 'Open Sans', 'Avenir', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-size-header: 32px;
+  --font-size-subheader: 24px;
+
+  --font-size-button-big: 20px; /* Also used for the names of order-items */
+  --font-size-button-mid: 15px; /* For signed-in bottom menu buttons */
+  --font-size-button-small: 12px; /* Mainly for the signed-in pages */
+
+  --font-size-text: 14px; /* All body text, non headers & non buttons */
+
+  /* Spacing */
+  --spacing-big: 40px; /* For big vertical spacing between itmes/containers */
+  --spacing-mid: 20px; /* Body Margins, some paddings, the primary spacing between items */
+  --spacing-small: 10px; /* Mainly paddings between items inside containers */
+  --spacing-tiny: 5px;
+
+  /* Border-radius */
+  --border-radius-big: 24px; /* Mainly for the big order number display */
+  --border-radius-mid: 12px;
+  --border-radius-small: 6px; /* Mainly for buttons */
+  --border-radius-tiny: 3px; /* Mainly for the containers on the signed-in pages */
+
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* General Styling */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  background-color: var(--color-background);
+  font-family: var(--font-primary);
+  font-weight: 400;
+  margin: var(--spacing-mid);
 }
 
+/* Typography */
 h1 {
-  font-size: 3.2em;
+  font-size: var(--font-size-header);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: var(--spacing-small);
+  color: var(--color-primary);
+}
+
+h1.staff-page-headers {
+  color: var(--color-black);
+}
+
+h2 {
+  font-size: var(--font-size-subheader);
+  font-weight: 600;
   line-height: 1.1;
+  color: var(--color-primary);
 }
 
+h2.staff-page-headers {
+  color: var(--color-black);
+}
+
+p {
+  font-size: var(--font-size-text);
+  font-weight: 400;
+  margin-bottom: var(--spacing-small);
+  color: var(--color-black);
+}
+
+/* Buttons */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-size: var(--font-size-button-big);
+  font-weight: 600;
+  color: var(--color-white);
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--border-radius-small);
+  padding: var(--spacing-small) var(--spacing-mid);
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button.small {
+  font-size: var(--font-size-button-small);
+  padding: var(--spacing-tiny) var(--spacing-small);
 }
