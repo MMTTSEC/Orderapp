@@ -40,6 +40,40 @@ public static partial class GetRoutes
             }
         }
 
+        // Handle BagPart (many-to-many with extra fields)
+        if (obj.TryGetValue("BagPart", out var bagPart) && bagPart.ValueKind == JsonValueKind.Object)
+        {
+            var bagDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(bagPart.GetRawText());
+            if (bagDict != null && bagDict.TryGetValue("ContentItems", out var contentItems) &&
+                contentItems.ValueKind == JsonValueKind.Array)
+            {
+                var itemsList = new List<object>();
+                foreach (var item in contentItems.EnumerateArray())
+                {
+                    if (item.ValueKind == JsonValueKind.Object)
+                    {
+                        var itemDict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(item.GetRawText());
+                        if (itemDict != null && itemDict.TryGetValue("ContentType", out var itemTypeElement))
+                        {
+                            var itemType = itemTypeElement.GetString();
+                            if (itemType != null)
+                            {
+                                var cleanedItem = CleanObject(itemDict, itemType);
+                                // Include contentType for roundtripping
+                                cleanedItem["contentType"] = itemType;
+                                itemsList.Add(cleanedItem);
+                            }
+                        }
+                    }
+                }
+
+                if (itemsList.Count > 0)
+                {
+                    clean["items"] = itemsList;
+                }
+            }
+        }
+
         return clean;
     }
 

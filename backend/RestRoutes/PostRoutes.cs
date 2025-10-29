@@ -79,6 +79,39 @@ public static class PostRoutes
                     var pascalKey = ToPascalCase(kvp.Key);
                     var value = kvp.Value;
 
+                    // Handle "items" field - this should become BagPart
+                    if (kvp.Key == "items" && value is JsonElement itemsElement && itemsElement.ValueKind == JsonValueKind.Array)
+                    {
+                        var bagItems = new JArray();
+                        foreach (var item in itemsElement.EnumerateArray())
+                        {
+                            if (item.ValueKind == JsonValueKind.Object)
+                            {
+                                // Get contentType first
+                                string? itemType = null;
+                                if (item.TryGetProperty("contentType", out var ctProp) && ctProp.ValueKind == JsonValueKind.String)
+                                {
+                                    itemType = ctProp.GetString();
+                                }
+
+                                if (!string.IsNullOrEmpty(itemType))
+                                {
+                                    var bagItem = CreateBagPartItem(item, itemType);
+                                    bagItems.Add(bagItem);
+                                }
+                            }
+                        }
+
+                        if (bagItems.Count > 0)
+                        {
+                            contentItem.Content["BagPart"] = new JObject
+                            {
+                                ["ContentItems"] = bagItems
+                            };
+                        }
+                        continue;
+                    }
+
                     // Handle fields ending with "Id" - these are content item references
                     if (kvp.Key.EndsWith("Id", StringComparison.OrdinalIgnoreCase) &&
                         kvp.Key.Length > 2)
@@ -258,5 +291,78 @@ public static class PostRoutes
         }
 
         return JToken.Parse(element.GetRawText());
+    }
+
+    private static JObject CreateBagPartItem(JsonElement itemElement, string contentType)
+    {
+        var bagItem = new JObject
+        {
+            ["ContentType"] = contentType,
+            [contentType] = new JObject()
+        };
+
+        var typeSection = (JObject)bagItem[contentType]!;
+
+        foreach (var prop in itemElement.EnumerateObject())
+        {
+            // Skip reserved fields and contentType itself
+            if (prop.Name == "contentType" || prop.Name == "id" || prop.Name == "title")
+                continue;
+
+            var pascalKey = ToPascalCase(prop.Name);
+            var value = prop.Value;
+
+            // Handle fields ending with "Id" - these are content item references
+            if (prop.Name.EndsWith("Id", StringComparison.OrdinalIgnoreCase) && prop.Name.Length > 2)
+            {
+                var fieldName = pascalKey.Substring(0, pascalKey.Length - 2);
+                if (value.ValueKind == JsonValueKind.String)
+                {
+                    var idValue = value.GetString();
+                    if (idValue != null)
+                    {
+                        typeSection[fieldName] = new JObject
+                        {
+                            ["ContentItemIds"] = new JArray(idValue)
+                        };
+                    }
+                }
+            }
+            else if (value.ValueKind == JsonValueKind.String)
+            {
+                typeSection[pascalKey] = new JObject { ["Text"] = value.GetString() };
+            }
+            else if (value.ValueKind == JsonValueKind.Number)
+            {
+                typeSection[pascalKey] = new JObject { ["Value"] = value.GetDouble() };
+            }
+            else if (value.ValueKind == JsonValueKind.True || value.ValueKind == JsonValueKind.False)
+            {
+                typeSection[pascalKey] = new JObject { ["Value"] = value.GetBoolean() };
+            }
+            else if (value.ValueKind == JsonValueKind.Array)
+            {
+                var arrayData = new JArray();
+                foreach (var item in value.EnumerateArray())
+                {
+                    if (item.ValueKind == JsonValueKind.String)
+                    {
+                        arrayData.Add(item.GetString());
+                    }
+                }
+                typeSection[pascalKey] = new JObject { ["Values"] = arrayData };
+            }
+            else if (value.ValueKind == JsonValueKind.Object)
+            {
+                var obj = new JObject();
+                foreach (var nestedProp in value.EnumerateObject())
+                {
+                    obj[ToPascalCase(nestedProp.Name)] = ConvertJsonElementToPascal(nestedProp.Value);
+                }
+                typeSection[pascalKey] = obj;
+            }
+        }
+
+        return bagItem;
     }
 }

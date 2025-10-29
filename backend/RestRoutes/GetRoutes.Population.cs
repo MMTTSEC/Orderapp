@@ -77,14 +77,25 @@ public static partial class GetRoutes
             }
             else if (value.ValueKind == JsonValueKind.Array)
             {
+                var populatedArray = new List<object>();
                 foreach (var item in value.EnumerateArray())
                 {
                     if (item.ValueKind == JsonValueKind.Object)
                     {
                         var nested = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(item.GetRawText());
-                        if (nested != null) PopulateContentItemIds(nested, itemsDictionary);
+                        if (nested != null)
+                        {
+                            PopulateContentItemIds(nested, itemsDictionary);
+                            populatedArray.Add(nested);
+                        }
+                    }
+                    else
+                    {
+                        // Non-object items (strings, numbers, etc.) - keep as-is
+                        populatedArray.Add(JsonSerializer.Deserialize<object>(item.GetRawText())!);
                     }
                 }
+                obj[key] = JsonSerializer.SerializeToElement(populatedArray);
             }
         }
     }
