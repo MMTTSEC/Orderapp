@@ -63,6 +63,14 @@ body {
   margin: var(--spacing-mid);
 }
 
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
 /* Typography */
 h1 {
   font-size: var(--font-size-header);
