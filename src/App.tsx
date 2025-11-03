@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import Main from './partials/Main';
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 export default function App() {
 
