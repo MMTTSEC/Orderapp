@@ -6,14 +6,20 @@ OrderSelection.route = {
   path: '/order-selection'
 };
 
-type SizeOption = "Liten" | "Normal" | "Stor";
+type SizeOption = "Liten" | "Mellan" | "Stor";
+
+type SizePrice = {
+  size: SizeOption;
+  price: number;
+};
 
 type Item = {
   id: number;
   name: string;
   image: string;
   amount: number;
-  sizes?: SizeOption[];
+  price?: number;
+  sizes?: SizePrice[];
   selectedSize?: SizeOption;
 };
 
@@ -22,39 +28,39 @@ export default function OrderSelection() {
 
   // Example data
 const [mealItems, setMealItems] = useState<Item[]>([
-    { id: 1, name: "Mål 1", image: "/", amount: 0 },
-    { id: 2, name: "Mål 2", image: "/", amount: 0 },
-    { id: 3, name: "Mål 3", image: "/", amount: 0 }
+    { id: 1, name: "Mål 1", image: "/", amount: 0, price: 100 },
+    { id: 2, name: "Mål 2", image: "/", amount: 0, price: 115 },
+    { id: 3, name: "Mål 3", image: "/", amount: 0, price: 105 }
   ]);
 
   const [foodItems, setFoodItems] = useState<Item[]>([
-    { id: 1, name: "Burgare 1", image: "/", amount: 0 },
-    { id: 2, name: "Burgare 2", image: "/", amount: 0 },
-    { id: 3, name: "Burgare 3", image: "/", amount: 0 },
-    { id: 4, name: "Burgare 4", image: "/", amount: 0 },
-    { id: 5, name: "Burgare 5", image: "/", amount: 0 },
-    { id: 6, name: "Burgare 6", image: "/", amount: 0 },
-    { id: 7, name: "Burgare 7", image: "/", amount: 0 },
-    { id: 8, name: "Burgare 8", image: "/", amount: 0 },
-    { id: 9, name: "Burgare 9", image: "/", amount: 0 }
+    { id: 1, name: "Burgare 1", image: "/", amount: 0, price: 80 },
+    { id: 2, name: "Burgare 2", image: "/", amount: 0, price: 80 },
+    { id: 3, name: "Burgare 3", image: "/", amount: 0, price: 80 },
+    { id: 4, name: "Burgare 4", image: "/", amount: 0, price: 70 },
+    { id: 5, name: "Burgare 5", image: "/", amount: 0, price: 70 },
+    { id: 6, name: "Burgare 6", image: "/", amount: 0, price: 35 },
+    { id: 7, name: "Burgare 7", image: "/", amount: 0, price: 30 },
+    { id: 8, name: "Burgare 8", image: "/", amount: 0, price: 24 },
+    { id: 9, name: "Burgare 9", image: "/", amount: 0, price: 24 }
   ]);
 
   const [drinkItems, setDrinkItems] = useState<Item[]>([
-    { id: 1, name: "Cola", image: "/", amount: 0, sizes: ["Liten", "Normal", "Stor"], selectedSize: "Normal" },
-    { id: 2, name: "Cola Zero", image: "/", amount: 0, sizes: ["Liten", "Normal", "Stor"], selectedSize: "Normal" },
-    { id: 3, name: "Fanta", image: "/", amount: 0, sizes: ["Liten", "Normal", "Stor"], selectedSize: "Normal" },
-    { id: 4, name: "Fanta Zero", image: "/", amount: 0, sizes: ["Liten", "Normal", "Stor"], selectedSize: "Normal" },
-    { id: 5, name: "Sprite", image: "/", amount: 0, sizes: ["Liten", "Normal", "Stor"], selectedSize: "Normal" },
-    { id: 6, name: "Sprite Zero", image: "/", amount: 0, sizes: ["Liten", "Normal", "Stor"], selectedSize: "Normal" },
-    { id: 7, name: "Vatten", image: "/", amount: 0, sizes: ["Liten", "Normal", "Stor"], selectedSize: "Normal" }
+    { id: 1, name: "Cola", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 2, name: "Cola Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 3, name: "Fanta", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 4, name: "Fanta Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 5, name: "Sprite", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 6, name: "Sprite Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 7, name: "Vatten", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" }
   ]);
 
   const [extraItems, setExtraItems] = useState<Item[]>([
-    { id: 1, name: "Pommes", image: "/", amount: 0, sizes: ["Liten", "Normal", "Stor"], selectedSize: "Normal" },
-    { id: 2, name: "Ketchup", image: "/", amount: 0 },
-    { id: 3, name: "Senap", image: "/", amount: 0 },
-    { id: 4, name: "Dressing", image: "/", amount: 0 },
-    { id: 5, name: "Sallad", image: "/", amount: 0, sizes: ["Liten", "Normal", "Stor"], selectedSize: "Normal" }
+    { id: 1, name: "Pommes", image: "/", amount: 0, sizes: [{ size: "Liten", price: 15 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 35 }], selectedSize: "Mellan" },
+    { id: 2, name: "Ketchup", image: "/", amount: 0, price: 5 },
+    { id: 3, name: "Senap", image: "/", amount: 0, price: 5 },
+    { id: 4, name: "Dressing", image: "/", amount: 0, price: 10 },
+    { id: 5, name: "Sallad", image: "/", amount: 0, sizes: [{ size: "Liten", price: 15 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 35 }], selectedSize: "Mellan" }
   ]);
 
   const getItems = () => {
@@ -80,6 +86,14 @@ const [mealItems, setMealItems] = useState<Item[]>([
           : item
       )
     );
+  };
+
+  const getItemPrice = (item: Item): number => {
+    if (item.sizes) {
+      const selected = item.sizes.find((s) => s.size === item.selectedSize);
+      return selected ? selected.price : item.sizes[0].price;
+    }
+    return item.price ?? 0;
   };
 
   const handleSizeChange = (id: number, size: SizeOption) => {
@@ -126,21 +140,24 @@ const [mealItems, setMealItems] = useState<Item[]>([
         <div className="items-container">
           {items.map((item) => (
             <div key={item.id} className={`item-card ${item.amount > 0 ? "selected" : ""}`}>
-              <img src={item.image} alt={item.name} className="item-image" />
+              <figure><img src={item.image} alt={item.name} className="item-image" /></figure>
               <h2 className="item-name">{item.name}</h2>
               {item.sizes && (
                 <div className="size-selector">
-                  {item.sizes.map((size) => (
+                  {item.sizes.map((sizeObj) => (
                     <button
-                      key={size}
-                      className={`size-btn ${item.selectedSize === size ? "active" : ""}`}
-                      onClick={() => handleSizeChange(item.id, size)}
+                      key={sizeObj.size}
+                      className={`size-btn ${item.selectedSize === sizeObj.size ? "active" : ""}`}
+                      onClick={() => handleSizeChange(item.id, sizeObj.size)}
                     >
-                      {size}
+                      {sizeObj.size}
                     </button>
                   ))}
                 </div>
               )}
+              
+              <h3 className="item-price">{getItemPrice(item)} kr</h3>
+
               <div className="quantity-selector">
                 <button
                   className="quantity-btn"
