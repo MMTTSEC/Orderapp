@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import '../../styles/stafflogin.css';
 
 StaffLogin.route = {
   path: '/staff/login'
@@ -51,32 +52,45 @@ export default function StaffLogin() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="username">Username or Email:</label>
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-      </div>
+    <div className="staff-login-container">
+      <form className="staff-login-form" onSubmit={handleSubmit}>
+        <div className="brand-logo">
+          Brand<br />Logo
+        </div>
 
-      <div>
-        <label htmlFor="password">Password:</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
+        <h1 className="welcome-title">Welcome Back!</h1>
+        <p className="welcome-subtitle">Log in to manage your orders</p>
 
-      <button type="submit">
-        Log In
-      </button>
-    </form>
+        <div className="form-group">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            className="form-input"
+            placeholder="Enter your username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            className="form-input"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <button type="submit" className="login-button">
+          Login
+        </button>
+      </form>
+    </div>
   );
 };
