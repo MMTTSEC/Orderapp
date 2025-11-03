@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../../styles/stafflogin.css';
 
 StaffLogin.route = {
@@ -12,11 +13,13 @@ export default function StaffLogin() {
     password: string;
   }
 
+  const navigate = useNavigate();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+
 
     const payload: LoginPayload = {
       usernameOrEmail: username,
@@ -39,6 +42,7 @@ export default function StaffLogin() {
       if (response.ok) {
         const data = await response.json();
         console.log('Login successful!', data);
+        navigate('/staff');
       } else {
         console.error('Login failed with status:', response.status);
         const errorText = await response.text();
