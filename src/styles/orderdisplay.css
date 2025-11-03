@@ -1,0 +1,72 @@
+.order-display-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--spacing-big) 0;
+}
+
+.orders-section + .orders-section {
+  margin-top: var(--spacing-big);
+}
+
+.orders-section h2 {
+  margin-bottom: var(--spacing-small);
+}
+
+.orders-board {
+  background: #E6E6E6;
+  border-radius: var(--border-radius-mid);
+  padding: var(--spacing-small);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--spacing-small);
+}
+
+.order-chip {
+  background: var(--color-white);
+  color: var(--color-black);
+  border-radius: var(--border-radius-small);
+  padding: 10px 14px;
+  text-align: center;
+  font-weight: 700;
+  user-select: none;
+}
+
+.order-chip--highlight {
+  background: var(--color-secondary);
+  color: var(--color-white);
+}
+
+.order-chip--done {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+@media (max-width: 900px) {
+  .orders-board {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .order-display-container {
+    padding: var(--spacing-mid) 0;
+  }
+  .orders-board {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .orders-board {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 360px) {
+  .orders-board {
+    grid-template-columns: 1fr;
+  }
+}
+
+
