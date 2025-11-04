@@ -141,7 +141,7 @@ figure {
 /* Item price */
 .item-price {
   color: var(--color-primary);
-  font-size: calc(var(--font-size-header) * 1.5);
+  font-size: calc(var(--font-size-subheader) * 1.5);
   font-weight: 600;
   margin: var(--spacing-mid);
   margin-top: 0;

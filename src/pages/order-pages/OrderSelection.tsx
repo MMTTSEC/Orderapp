@@ -1,6 +1,7 @@
 // Order 2-3 from our mockup
 import { useState } from "react";
 import "../../styles/orderSelection.css";
+import ShoppingCart from '../../components/ShoppingCart';
 
 OrderSelection.route = {
   path: '/order-selection'
@@ -103,9 +104,23 @@ const [mealItems, setMealItems] = useState<Item[]>([
       )
     );
   };
-  
+
+  const handleRemoveItem = (id: number) => {
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, amount: 0 } : item
+      )
+    );
+  };
+
+  // Get all items with amount > 0 from all categories
+  const getAllCartItems = () => {
+    return [...mealItems, ...foodItems, ...drinkItems, ...extraItems]
+      .filter(item => item.amount > 0);
+  };
+
   return (
-    <div className=" main-container order-selection-page">
+    <div className="main-container order-selection-page">
       <nav className="tab-menu">
         <button
           className={`tab-item ${activeTab === "meal" ? "active" : ""}`}
@@ -180,6 +195,12 @@ const [mealItems, setMealItems] = useState<Item[]>([
           ))}
         </div>
       </div>
+
+      <ShoppingCart 
+        items={getAllCartItems()} 
+        onUpdateAmount={handleAmountChange}
+        onRemoveItem={handleRemoveItem}
+      />
     </div>
   );
 }
