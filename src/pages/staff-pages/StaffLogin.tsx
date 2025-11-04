@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { checkLoginStatus } from '../../auth/authUtils';
 import '../../styles/stafflogin.css';
 
 StaffLogin.route = {
@@ -16,6 +17,20 @@ export default function StaffLogin() {
   const navigate = useNavigate();
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const verifyLogin = async () => {
+      const { isAuthorized } = await checkLoginStatus();
+      if (isAuthorized) {
+        navigate('/staff');
+      } else {
+        setLoading(false);
+      }
+    };
+
+    verifyLogin();
+  }, [navigate]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -55,6 +70,10 @@ export default function StaffLogin() {
       alert('An unexpected error occurred. Please check your network.');
     }
   };
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <div className="staff-login-container">
