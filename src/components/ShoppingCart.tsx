@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import '../styles/shoppingCart.css';
 
 type SizeOption = "Liten" | "Mellan" | "Stor";
@@ -30,6 +31,10 @@ export default function ShoppingCart({
   onRemoveItem 
 }: ShoppingCartProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const navigate = useNavigate();
+  const goToOrderSelection = () => {
+    navigate("/order-confirmation");
+  };
 
   const getItemPrice = (item: Item): number => {
     if (item.sizes) {
@@ -96,6 +101,7 @@ export default function ShoppingCart({
             <span className="full-price-span">TOTAL:</span>
             <span className="full-price-amount">{getTotalPrice()} kr</span>
           </div>
+          <button className="btn-confirm-order" onClick={goToOrderSelection}>Bekräfta Order</button>
         </div>
       )}
     </div>

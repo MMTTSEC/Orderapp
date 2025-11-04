@@ -25,7 +25,7 @@ type Item = {
 };
 
 export default function OrderSelection() {
-   const [activeTab, setActiveTab] = useState<"meal" | "food" | "drink" | "extra">("food");
+   const [activeTab, setActiveTab] = useState<"meal" | "food" | "drink" | "extra">("meal");
 
   // Example data
 const [mealItems, setMealItems] = useState<Item[]>([
