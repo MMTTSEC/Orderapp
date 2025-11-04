@@ -56,9 +56,8 @@
 
 .shopping-cart .item-info {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  gap: var(--spacing-small);
+  gap: var(--spacing-small, 0.75rem);
 }
 
 .shopping-cart .item-info .item-name {
@@ -151,4 +150,28 @@
   flex-direction: row;
   gap: var(--spacing-mid);
   margin: 0 auto;
+}
+
+/* tweak item-name ellipsis if long */
+.shopping-cart .item-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.shopping-cart .cart-item-image {
+  background-color: var(--color-gray-light);
+  width: 48px;
+  height: 48px;
+  margin-left: var(--spacing-mid);
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.shopping-cart .item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
 }

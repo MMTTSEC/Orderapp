@@ -66,8 +66,11 @@ export default function ShoppingCart({
           {activeItems.map((item) => (
             <div key={item.id} className="cart-item">
               <div className="item-info">
-                <h3 className="item-name">{item.name}</h3>
-                {item.selectedSize && <span className="item-size">({item.selectedSize})</span>}
+                <img src={item.image} alt={item.name} className="cart-item-image" />
+                <div className="item-meta">
+                  <h3 className="item-name">{item.name}</h3>
+                  {item.selectedSize && <span className="item-size">({item.selectedSize})</span>}
+                </div>
               </div>
 
               <div className="item-actions">
