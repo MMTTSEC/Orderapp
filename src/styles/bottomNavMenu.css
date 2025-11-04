@@ -1,0 +1,62 @@
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: var(--color-gray-dark);
+    padding: var(--spacing-small) 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-tiny);
+    background: none;
+    border: none;
+    padding: var(--spacing-small);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 120px;
+}
+
+.bottom-nav .nav-item .nav-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-white);
+    transition: color 0.3s ease;
+}
+
+.bottom-nav .nav-item .nav-label {
+    font-size: var(--font-size-button-mid);
+    font-weight: 400;
+    color: var(--color-white);
+    transition: color 0.3s ease;
+    text-transform: lowercase;
+}
+
+.bottom-nav .nav-item:hover .nav-icon,
+.bottom-nav .nav-item:hover .nav-label {
+    color: var(--color-gray-light);
+}
+
+.bottom-nav .nav-item.active .nav-icon,
+.bottom-nav .nav-item.active .nav-label {
+    color: var(--color-primary);
+}
+
+.bottom-nav .nav-item.active .nav-icon svg {
+    stroke: var(--color-primary);
+}
+
+body {
+    padding-bottom: 80px;
+}
