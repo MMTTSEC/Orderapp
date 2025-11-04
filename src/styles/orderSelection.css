@@ -31,7 +31,7 @@
 }
 
 .order-selection-page nav button {
-  background-color: var(--color-gray-light);
+  background-color: var(--color-white);
   color: var(--color-primary);
   border-radius: 0;
   border-left: 1px solid #B1B1B1;
@@ -43,7 +43,7 @@
 }
 
 .order-selection-page nav button:hover {
-  background-color: #B1B1B1;
+  background-color: var(--color-gray-light);
 }
 
 .order-selection-page nav button:first-of-type {
