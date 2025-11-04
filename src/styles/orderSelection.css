@@ -2,6 +2,7 @@
 .order-selection-page {
   width: 100%;
   padding: 0;
+  padding-top: 74px;
 }
 
 /* Tab Navigation */
@@ -10,6 +11,11 @@
   background-color: var(--color-gray-light);
   display: flex;
   justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .order-selection-page nav button.active {
@@ -41,6 +47,7 @@
 }
 
 .order-selection-page nav button:first-of-type {
+  border-left: none;
   border-right: none;
 }
 
@@ -50,6 +57,7 @@
 
 .order-selection-page nav button:last-of-type {
   border-left: none;
+  border-right: none;
 }
 
 /* Tab Content / Main Content */
@@ -72,6 +80,7 @@
 .item-card {
   flex: 1 1 calc(25% - 1rem);
   min-width: 400px;
+  max-width: calc(25%);
   border-radius: 8px;
   overflow: hidden;
   background: #fff;

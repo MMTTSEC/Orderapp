@@ -34,7 +34,7 @@
   --font-size-button-mid: 15px; /* For signed-in bottom menu buttons */
   --font-size-button-small: 12px; /* Mainly for the signed-in pages */
 
-  --font-size-text: 14px; /* All body text, non headers & non buttons */
+  --font-size-text: 16px; /* All body text, non headers & non buttons */
 
   /* Spacing */
   --spacing-big: 40px; /* For big vertical spacing between itmes/containers */

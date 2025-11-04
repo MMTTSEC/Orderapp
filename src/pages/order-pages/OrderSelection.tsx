@@ -35,33 +35,33 @@ const [mealItems, setMealItems] = useState<Item[]>([
   ]);
 
   const [foodItems, setFoodItems] = useState<Item[]>([
-    { id: 1, name: "Burgare 1", image: "/", amount: 0, price: 80 },
-    { id: 2, name: "Burgare 2", image: "/", amount: 0, price: 80 },
-    { id: 3, name: "Burgare 3", image: "/", amount: 0, price: 80 },
-    { id: 4, name: "Burgare 4", image: "/", amount: 0, price: 70 },
-    { id: 5, name: "Burgare 5", image: "/", amount: 0, price: 70 },
-    { id: 6, name: "Burgare 6", image: "/", amount: 0, price: 35 },
-    { id: 7, name: "Burgare 7", image: "/", amount: 0, price: 30 },
-    { id: 8, name: "Burgare 8", image: "/", amount: 0, price: 24 },
-    { id: 9, name: "Burgare 9", image: "/", amount: 0, price: 24 }
+    { id: 4, name: "Burgare 1", image: "/", amount: 0, price: 80 },
+    { id: 5, name: "Burgare 2", image: "/", amount: 0, price: 80 },
+    { id: 6, name: "Burgare 3", image: "/", amount: 0, price: 80 },
+    { id: 7, name: "Burgare 4", image: "/", amount: 0, price: 70 },
+    { id: 8, name: "Burgare 5", image: "/", amount: 0, price: 70 },
+    { id: 9, name: "Burgare 6", image: "/", amount: 0, price: 35 },
+    { id: 10, name: "Burgare 7", image: "/", amount: 0, price: 30 },
+    { id: 11, name: "Burgare 8", image: "/", amount: 0, price: 24 },
+    { id: 12, name: "Burgare 9", image: "/", amount: 0, price: 24 }
   ]);
 
   const [drinkItems, setDrinkItems] = useState<Item[]>([
-    { id: 1, name: "Cola", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 2, name: "Cola Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 3, name: "Fanta", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 4, name: "Fanta Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 5, name: "Sprite", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 6, name: "Sprite Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 7, name: "Vatten", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" }
+    { id: 13, name: "Cola", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 14, name: "Cola Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 15, name: "Fanta", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 16, name: "Fanta Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 17, name: "Sprite", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 18, name: "Sprite Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
+    { id: 19, name: "Vatten", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" }
   ]);
 
   const [extraItems, setExtraItems] = useState<Item[]>([
-    { id: 1, name: "Pommes", image: "/", amount: 0, sizes: [{ size: "Liten", price: 15 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 35 }], selectedSize: "Mellan" },
-    { id: 2, name: "Ketchup", image: "/", amount: 0, price: 5 },
-    { id: 3, name: "Senap", image: "/", amount: 0, price: 5 },
-    { id: 4, name: "Dressing", image: "/", amount: 0, price: 10 },
-    { id: 5, name: "Sallad", image: "/", amount: 0, sizes: [{ size: "Liten", price: 15 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 35 }], selectedSize: "Mellan" }
+    { id: 20, name: "Pommes", image: "/", amount: 0, sizes: [{ size: "Liten", price: 15 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 35 }], selectedSize: "Mellan" },
+    { id: 21, name: "Ketchup", image: "/", amount: 0, price: 5 },
+    { id: 22, name: "Senap", image: "/", amount: 0, price: 5 },
+    { id: 23, name: "Dressing", image: "/", amount: 0, price: 10 },
+    { id: 24, name: "Sallad", image: "/", amount: 0, sizes: [{ size: "Liten", price: 15 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 35 }], selectedSize: "Mellan" }
   ]);
 
   const getItems = () => {
@@ -80,13 +80,24 @@ const [mealItems, setMealItems] = useState<Item[]>([
   const [items, setItems] = getItems();
 
   const handleAmountChange = (id: number, delta: number) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, amount: Math.max(0, item.amount + delta) }
-          : item
-      )
-    );
+    // Find which array contains the item and update it
+    if (mealItems.find(i => i.id === id)) {
+      setMealItems(prev => prev.map(i => 
+        i.id === id ? { ...i, amount: Math.max(0, i.amount + delta) } : i
+      ));
+    } else if (foodItems.find(i => i.id === id)) {
+      setFoodItems(prev => prev.map(i => 
+        i.id === id ? { ...i, amount: Math.max(0, i.amount + delta) } : i
+      ));
+    } else if (drinkItems.find(i => i.id === id)) {
+      setDrinkItems(prev => prev.map(i => 
+        i.id === id ? { ...i, amount: Math.max(0, i.amount + delta) } : i
+      ));
+    } else if (extraItems.find(i => i.id === id)) {
+      setExtraItems(prev => prev.map(i => 
+        i.id === id ? { ...i, amount: Math.max(0, i.amount + delta) } : i
+      ));
+    }
   };
 
   const getItemPrice = (item: Item): number => {
@@ -106,11 +117,21 @@ const [mealItems, setMealItems] = useState<Item[]>([
   };
 
   const handleRemoveItem = (id: number) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, amount: 0 } : item
-      )
-    );
+    // Find which array contains the item and update it
+    const item = [...mealItems, ...foodItems, ...drinkItems, ...extraItems]
+      .find(item => item.id === id);
+    
+    if (!item) return;
+
+    if (mealItems.find(i => i.id === id)) {
+      setMealItems(prev => prev.map(i => i.id === id ? { ...i, amount: 0 } : i));
+    } else if (foodItems.find(i => i.id === id)) {
+      setFoodItems(prev => prev.map(i => i.id === id ? { ...i, amount: 0 } : i));
+    } else if (drinkItems.find(i => i.id === id)) {
+      setDrinkItems(prev => prev.map(i => i.id === id ? { ...i, amount: 0 } : i));
+    } else if (extraItems.find(i => i.id === id)) {
+      setExtraItems(prev => prev.map(i => i.id === id ? { ...i, amount: 0 } : i));
+    }
   };
 
   // Get all items with amount > 0 from all categories
@@ -197,7 +218,7 @@ const [mealItems, setMealItems] = useState<Item[]>([
       </div>
 
       <ShoppingCart 
-        items={getAllCartItems()} 
+        items={getAllCartItems()}
         onUpdateAmount={handleAmountChange}
         onRemoveItem={handleRemoveItem}
       />
