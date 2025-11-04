@@ -22,6 +22,7 @@ type Item = {
   price?: number;
   sizes?: SizePrice[];
   selectedSize?: SizeOption;
+  sizeAmounts?: Record<SizeOption, number>; // Add this to track amounts per size
 };
 
 export default function OrderSelection() {
@@ -47,56 +48,170 @@ const [mealItems, setMealItems] = useState<Item[]>([
   ]);
 
   const [drinkItems, setDrinkItems] = useState<Item[]>([
-    { id: 13, name: "Cola", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 14, name: "Cola Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 15, name: "Fanta", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 16, name: "Fanta Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 17, name: "Sprite", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 18, name: "Sprite Zero", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" },
-    { id: 19, name: "Vatten", image: "/", amount: 0, sizes: [{ size: "Liten", price: 20 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 30 }], selectedSize: "Mellan" }
+    { 
+      id: 13, 
+      name: "Cola", 
+      image: "/", 
+      amount: 0, 
+      sizes: [
+        { size: "Liten", price: 20 },
+        { size: "Mellan", price: 25 },
+        { size: "Stor", price: 30 }
+      ], 
+      selectedSize: "Mellan",
+      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    },
+    { 
+      id: 14, 
+      name: "Cola Zero", 
+      image: "/", 
+      amount: 0, 
+      sizes: [
+        { size: "Liten", price: 20 },
+        { size: "Mellan", price: 25 },
+        { size: "Stor", price: 30 }
+      ], 
+      selectedSize: "Mellan",
+      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    },
+    { 
+      id: 15, 
+      name: "Fanta", 
+      image: "/", 
+      amount: 0, 
+      sizes: [
+        { size: "Liten", price: 20 },
+        { size: "Mellan", price: 25 },
+        { size: "Stor", price: 30 }
+      ], 
+      selectedSize: "Mellan",
+      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    },
+    { 
+      id: 16, 
+      name: "Fanta Zero", 
+      image: "/", 
+      amount: 0, 
+      sizes: [
+        { size: "Liten", price: 20 },
+        { size: "Mellan", price: 25 },
+        { size: "Stor", price: 30 }
+      ], 
+      selectedSize: "Mellan",
+      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    },
+    { 
+      id: 17, 
+      name: "Sprite", 
+      image: "/", 
+      amount: 0, 
+      sizes: [
+        { size: "Liten", price: 20 },
+        { size: "Mellan", price: 25 },
+        { size: "Stor", price: 30 }
+      ], 
+      selectedSize: "Mellan",
+      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    },
+    { 
+      id: 18, 
+      name: "Sprite Zero", 
+      image: "/", 
+      amount: 0, 
+      sizes: [
+        { size: "Liten", price: 20 },
+        { size: "Mellan", price: 25 },
+        { size: "Stor", price: 30 }
+      ], 
+      selectedSize: "Mellan",
+      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    },
+    { 
+      id: 19, 
+      name: "Vatten", 
+      image: "/", 
+      amount: 0, 
+      sizes: [
+        { size: "Liten", price: 20 },
+        { size: "Mellan", price: 25 },
+        { size: "Stor", price: 30 }
+      ], 
+      selectedSize: "Mellan",
+      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    }
   ]);
 
   const [extraItems, setExtraItems] = useState<Item[]>([
-    { id: 20, name: "Pommes", image: "/", amount: 0, sizes: [{ size: "Liten", price: 15 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 35 }], selectedSize: "Mellan" },
+    { 
+      id: 20, 
+      name: "Pommes", 
+      image: "/", 
+      amount: 0, 
+      sizes: [
+        { size: "Liten", price: 15 },
+        { size: "Mellan", price: 25 },
+        { size: "Stor", price: 35 }
+      ], 
+      selectedSize: "Mellan",
+      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    },
     { id: 21, name: "Ketchup", image: "/", amount: 0, price: 5 },
     { id: 22, name: "Senap", image: "/", amount: 0, price: 5 },
     { id: 23, name: "Dressing", image: "/", amount: 0, price: 10 },
-    { id: 24, name: "Sallad", image: "/", amount: 0, sizes: [{ size: "Liten", price: 15 },{ size: "Mellan", price: 25 },{ size: "Stor", price: 35 }], selectedSize: "Mellan" }
+    { 
+      id: 24, 
+      name: "Sallad", 
+      image: "/", 
+      amount: 0, 
+      sizes: [
+        { size: "Liten", price: 15 },
+        { size: "Mellan", price: 25 },
+        { size: "Stor", price: 35 }
+      ], 
+      selectedSize: "Mellan",
+      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    }
   ]);
 
-  const getItems = () => {
-    switch (activeTab) {
-      case "meal":
-        return [mealItems, setMealItems] as const;
-      case "food":
-        return [foodItems, setFoodItems] as const;
-      case "drink":
-        return [drinkItems, setDrinkItems] as const;
-      case "extra":
-        return [extraItems, setExtraItems] as const;
-    }
-  };
+  const handleAmountChange = (id: number, delta: number, size?: SizeOption) => {
+    const updateItemInArray = (items: Item[], setItems: React.Dispatch<React.SetStateAction<Item[]>>) => {
+      const item = items.find(i => i.id === id);
+      if (!item) return;
 
-  const [items, setItems] = getItems();
+      if (item.sizes && size && item.sizeAmounts) {
+        // Update amount for specific size
+        setItems(prev => prev.map(i => {
+          if (i.id === id) {
+            const newSizeAmounts = { ...i.sizeAmounts! };
+            newSizeAmounts[size] = Math.max(0, (newSizeAmounts[size] || 0) + delta);
+            
+            // Calculate total amount across all sizes
+            const totalAmount = Object.values(newSizeAmounts).reduce((sum, amount) => sum + amount, 0);
+            
+            return {
+              ...i,
+              sizeAmounts: newSizeAmounts,
+              amount: totalAmount // Update total amount
+            };
+          }
+          return i;
+        }));
+      } else {
+        // For items without sizes
+        setItems(prev => prev.map(i => 
+          i.id === id ? { ...i, amount: Math.max(0, i.amount + delta) } : i
+        ));
+      }
+    };
 
-  const handleAmountChange = (id: number, delta: number) => {
-    // Find which array contains the item and update it
     if (mealItems.find(i => i.id === id)) {
-      setMealItems(prev => prev.map(i => 
-        i.id === id ? { ...i, amount: Math.max(0, i.amount + delta) } : i
-      ));
+      updateItemInArray(mealItems, setMealItems);
     } else if (foodItems.find(i => i.id === id)) {
-      setFoodItems(prev => prev.map(i => 
-        i.id === id ? { ...i, amount: Math.max(0, i.amount + delta) } : i
-      ));
+      updateItemInArray(foodItems, setFoodItems);
     } else if (drinkItems.find(i => i.id === id)) {
-      setDrinkItems(prev => prev.map(i => 
-        i.id === id ? { ...i, amount: Math.max(0, i.amount + delta) } : i
-      ));
+      updateItemInArray(drinkItems, setDrinkItems);
     } else if (extraItems.find(i => i.id === id)) {
-      setExtraItems(prev => prev.map(i => 
-        i.id === id ? { ...i, amount: Math.max(0, i.amount + delta) } : i
-      ));
+      updateItemInArray(extraItems, setExtraItems);
     }
   };
 
@@ -109,35 +224,76 @@ const [mealItems, setMealItems] = useState<Item[]>([
   };
 
   const handleSizeChange = (id: number, size: SizeOption) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, selectedSize: size } : item
-      )
-    );
-  };
-
-  const handleRemoveItem = (id: number) => {
-    // Find which array contains the item and update it
-    const item = [...mealItems, ...foodItems, ...drinkItems, ...extraItems]
-      .find(item => item.id === id);
-    
-    if (!item) return;
+    const updateItemInArray = (setItems: React.Dispatch<React.SetStateAction<Item[]>>) => {
+      setItems(prev => prev.map(i => 
+        i.id === id ? { ...i, selectedSize: size } : i
+      ));
+    };
 
     if (mealItems.find(i => i.id === id)) {
-      setMealItems(prev => prev.map(i => i.id === id ? { ...i, amount: 0 } : i));
+      updateItemInArray(setMealItems);
     } else if (foodItems.find(i => i.id === id)) {
-      setFoodItems(prev => prev.map(i => i.id === id ? { ...i, amount: 0 } : i));
+      updateItemInArray(setFoodItems);
     } else if (drinkItems.find(i => i.id === id)) {
-      setDrinkItems(prev => prev.map(i => i.id === id ? { ...i, amount: 0 } : i));
+      updateItemInArray(setDrinkItems);
     } else if (extraItems.find(i => i.id === id)) {
-      setExtraItems(prev => prev.map(i => i.id === id ? { ...i, amount: 0 } : i));
+      updateItemInArray(setExtraItems);
     }
   };
 
-  // Get all items with amount > 0 from all categories
+  const handleRemoveItem = (id: number, size?: SizeOption) => {
+    const updateItemInArray = (_items: Item[], setItems: React.Dispatch<React.SetStateAction<Item[]>>) => {
+      setItems(prev => prev.map(i => {
+        if (i.id === id) {
+          if (i.sizeAmounts && size) {
+            // Reset specific size amount
+            const newSizeAmounts = { ...i.sizeAmounts };
+            newSizeAmounts[size] = 0;
+            return {
+              ...i,
+              sizeAmounts: newSizeAmounts,
+              amount: Object.values(newSizeAmounts).reduce((sum, amount) => sum + amount, 0)
+            };
+          }
+          return { ...i, amount: 0 };
+        }
+        return i;
+      }));
+    };
+
+    if (mealItems.find(i => i.id === id)) {
+      updateItemInArray(mealItems, setMealItems);
+    } else if (foodItems.find(i => i.id === id)) {
+      updateItemInArray(foodItems, setFoodItems);
+    } else if (drinkItems.find(i => i.id === id)) {
+      updateItemInArray(drinkItems, setDrinkItems);
+    } else if (extraItems.find(i => i.id === id)) {
+      updateItemInArray(extraItems, setExtraItems);
+    }
+  };
+
+  // Modify getAllCartItems to handle sized items
   const getAllCartItems = () => {
-    return [...mealItems, ...foodItems, ...drinkItems, ...extraItems]
-      .filter(item => item.amount > 0);
+    const allItems = [...mealItems, ...foodItems, ...drinkItems, ...extraItems];
+    
+    return allItems.reduce<Item[]>((acc, item) => {
+      if (item.sizeAmounts) {
+        // For items with sizes, create separate cart items for each size with amount > 0
+        Object.entries(item.sizeAmounts).forEach(([size, amount]) => {
+          if (amount > 0) {
+            acc.push({
+              ...item,
+              selectedSize: size as SizeOption,
+              amount: amount
+            });
+          }
+        });
+      } else if (item.amount > 0) {
+        // For items without sizes
+        acc.push(item);
+      }
+      return acc;
+    }, []);
   };
 
   return (
@@ -174,7 +330,20 @@ const [mealItems, setMealItems] = useState<Item[]>([
 
       <div className="tab-content">
         <div className="items-container">
-          {items.map((item) => (
+          {(() => {
+            switch (activeTab) {
+              case "meal":
+                return mealItems;
+              case "food":
+                return foodItems;
+              case "drink":
+                return drinkItems;
+              case "extra":
+                return extraItems;
+              default:
+                return [];
+            }
+          })().map((item) => (
             <div key={item.id} className={`item-card ${item.amount > 0 ? "selected" : ""}`}>
               <figure><img src={item.image} alt={item.name} className="item-image" /></figure>
               <h2 className="item-name">{item.name}</h2>
@@ -197,17 +366,22 @@ const [mealItems, setMealItems] = useState<Item[]>([
               <div className="quantity-selector">
                 <button
                   className="quantity-btn"
-                  onClick={() => handleAmountChange(item.id, -1)}
+                  onClick={() => handleAmountChange(item.id, -1, item.selectedSize)}
                   disabled={item.amount <= 0}
                 >
                   <i className="bi bi-dash-lg"></i>
                 </button>
 
-                <span className="quantity-value">{item.amount}</span>
+                <span className="quantity-value">
+                  {item.sizeAmounts 
+                    ? (item.sizeAmounts[item.selectedSize!] || 0)
+                    : item.amount
+                  }
+                </span>
 
                 <button
                   className="quantity-btn"
-                  onClick={() => handleAmountChange(item.id, +1)}
+                  onClick={() => handleAmountChange(item.id, 1, item.selectedSize)}
                 >
                   <i className="bi bi-plus-lg"></i>
                 </button>
