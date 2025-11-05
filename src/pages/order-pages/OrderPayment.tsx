@@ -1,17 +1,16 @@
 // src/pages/order-pages/OrderPayment.tsx
 import { useState } from "react";
-import { BsArrowLeft, BsCreditCard2Front, BsPaypal, BsBank } from "react-icons/bs";
+import { BsArrowLeft, BsCreditCard2Front, BsPaypal, BsBank, BsPhoneFill } from "react-icons/bs";
 import "bootstrap/dist/css/bootstrap.min.css";
-
+OrderPayment.route = {
+  path: '/order-payment'
+};
 export default function OrderPayment() {
   const [selectedMethod, setSelectedMethod] = useState("swish");
 
   return (
-    <div className="d-flex flex-column align-items-center justify-content-center vh-100 bg-dark text-dark">
-      <div
-        className="bg-light p-4 rounded-4"
-        style={{ width: "320px", minHeight: "500px" }}
-      >
+    <div className="container py-4">
+      <div className="mx-auto bg-light p-4 rounded-4 shadow-sm w-100" style={{ maxWidth: "480px", minHeight: "480px" }}>
         <div className="d-flex align-items-center mb-4">
           <BsArrowLeft size={24} className="me-2" />
           <span className="text-muted">Order 5</span>
@@ -36,12 +35,13 @@ export default function OrderPayment() {
               <input
                 type="radio"
                 className="form-check-input"
+                name="payment-method"
                 checked={selectedMethod === "swish"}
                 onChange={() => setSelectedMethod("swish")}
               />
               <label className="form-check-label fw-semibold">Swish</label>
             </div>
-            <i className="bi bi-phone-fill text-success fs-5"></i>
+            <BsPhoneFill className="text-success fs-5" />
           </div>
 
           {/* Card */}
@@ -56,6 +56,7 @@ export default function OrderPayment() {
               <input
                 type="radio"
                 className="form-check-input"
+                name="payment-method"
                 checked={selectedMethod === "card"}
                 onChange={() => setSelectedMethod("card")}
               />
@@ -76,6 +77,7 @@ export default function OrderPayment() {
               <input
                 type="radio"
                 className="form-check-input"
+                name="payment-method"
                 checked={selectedMethod === "paypal"}
                 onChange={() => setSelectedMethod("paypal")}
               />
@@ -96,6 +98,7 @@ export default function OrderPayment() {
               <input
                 type="radio"
                 className="form-check-input"
+                name="payment-method"
                 checked={selectedMethod === "klarna"}
                 onChange={() => setSelectedMethod("klarna")}
               />
@@ -116,3 +119,5 @@ export default function OrderPayment() {
     </div>
   );
 }
+
+
