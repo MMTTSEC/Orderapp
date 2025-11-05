@@ -9,8 +9,8 @@ export default function OrderPayment() {
   const [selectedMethod, setSelectedMethod] = useState("swish");
 
   return (
-    <div className="container py-4">
-      <div className="mx-auto bg-light p-4 rounded-4 shadow-sm w-100" style={{ maxWidth: "480px", minHeight: "480px" }}>
+    <div className="container-fluid py-4">
+      <div className="mx-auto p-4 w-100" style={{ minHeight: "480px", maxWidth: "900px" }}>
         <div className="d-flex align-items-center mb-4">
           <button
             type="button"
@@ -30,13 +30,7 @@ export default function OrderPayment() {
           <span className="text-muted">Order 5</span>
         </div>
 
-        <div
-          className="border rounded-3 p-3"
-          style={{
-            backgroundColor: "#fff",
-            borderColor: "#ccc",
-          }}
-        >
+        <div className="p-3">
           {/* Swish */}
           <div
             className={`d-flex justify-content-between align-items-center p-2 mb-2 rounded ${
