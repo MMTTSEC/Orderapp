@@ -1,6 +1,6 @@
 // src/pages/order-pages/OrderPayment.tsx
 import { useState } from "react";
-import { BsArrowLeft, BsCreditCard2Front, BsPaypal, BsBank, BsPhoneFill } from "react-icons/bs";
+import { BsCreditCard2Front, BsPaypal, BsBank, BsPhoneFill } from "react-icons/bs";
 import "bootstrap/dist/css/bootstrap.min.css";
 OrderPayment.route = {
   path: '/order-payment'
@@ -12,7 +12,21 @@ export default function OrderPayment() {
     <div className="container py-4">
       <div className="mx-auto bg-light p-4 rounded-4 shadow-sm w-100" style={{ maxWidth: "480px", minHeight: "480px" }}>
         <div className="d-flex align-items-center mb-4">
-          <BsArrowLeft size={24} className="me-2" />
+          <button
+            type="button"
+            className="btn p-0 me-2"
+            aria-label="Go back"
+            style={{ color: "var(--color-primary)", background: "transparent" }}
+            onClick={() => {
+              if (window.history.length > 1) {
+                window.history.back();
+              } else {
+                window.location.href = "/order-display";
+              }
+            }}
+          >
+            <i className="bi bi-arrow-return-left fs-4"></i>
+          </button>
           <span className="text-muted">Order 5</span>
         </div>
 
