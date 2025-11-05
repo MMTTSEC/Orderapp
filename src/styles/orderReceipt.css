@@ -1,0 +1,23 @@
+.main-container.order-receipt-page {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  padding: 0px var(--spacing-mid);
+}
+
+.main-container.order-receipt-page button {
+  display: flex;
+  border-radius: var(--border-radius-mid);
+}
+
+.main-container.order-receipt-page button.btn-left {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-right: 1px solid var(--color-background);
+}
+
+.main-container.order-receipt-page button.btn-right {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-left: 1px solid var(--color-background);
+}
