@@ -1,4 +1,5 @@
 // Order 7 from our mockup
+import { useEffect, useState } from 'react';
 import '../../styles/orderCompleted.css';
 OrderCompleted.route = {
   path: '/order-completed'
@@ -6,6 +7,22 @@ OrderCompleted.route = {
 
 export default function OrderCompleted() {
   const orderNumber = 3112;
+  const [secondsLeft, setSecondsLeft] = useState(5);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          window.location.href = "/";
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   return <>
     <div className="order-completed-page">
@@ -24,7 +41,7 @@ export default function OrderCompleted() {
           className="btn oc-home-btn"
           onClick={() => { window.location.href = "/"; }}
         >
-          Till startsidan
+          Till startsidan ({secondsLeft})
         </button>
       </div>
     </div>
