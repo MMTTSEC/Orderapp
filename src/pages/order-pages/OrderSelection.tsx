@@ -1,7 +1,8 @@
 // Order 2-3 from our mockup
 import { useState } from "react";
-import "../../styles/orderSelection.css";
 import ShoppingCart from '../../components/ShoppingCart';
+import OrderConfirmation from '../../components/OrderConfirmation';
+import "../../styles/orderSelection.css";
 
 OrderSelection.route = {
   path: '/order-selection'
@@ -27,6 +28,7 @@ type Item = {
 
 export default function OrderSelection() {
    const [activeTab, setActiveTab] = useState<"meal" | "food" | "drink" | "extra">("meal");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Example data
 const [mealItems, setMealItems] = useState<Item[]>([
@@ -395,7 +397,15 @@ const [mealItems, setMealItems] = useState<Item[]>([
         items={getAllCartItems()}
         onUpdateAmount={handleAmountChange}
         onRemoveItem={handleRemoveItem}
+        onConfirm={() => setShowConfirmation(true)}
       />
+
+     {showConfirmation && (
+       <OrderConfirmation
+         items={getAllCartItems()}
+         onClose={() => setShowConfirmation(false)}
+       />
+     )}
     </div>
   );
 }

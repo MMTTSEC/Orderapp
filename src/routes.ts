@@ -7,7 +7,6 @@ import NotFoundPage from './pages/general-pages/NotFoundPage.tsx';
 // order pages
 import OrderIndex from './pages/order-pages/OrderIndex.tsx';
 import OrderSelection from './pages/order-pages/OrderSelection.tsx';
-import OrderConfirmation from './pages/order-pages/OrderConfirmation.tsx';
 import OrderReceipt from './pages/order-pages/OrderReceipt.tsx';
 import OrderPayment from './pages/order-pages/OrderPayment.tsx';
 import OrderCompleted from './pages/order-pages/OrderCompleted.tsx';
@@ -22,7 +21,6 @@ export default [
   NotFoundPage,
   OrderIndex,
   OrderSelection,
-  OrderConfirmation,
   OrderReceipt,
   OrderPayment,
   OrderCompleted,
