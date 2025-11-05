@@ -1,0 +1,205 @@
+/* General Styles */
+.order-selection-page {
+  width: 100%;
+  padding: 0;
+  padding-top: 74px;
+}
+
+/* Tab Navigation */
+.order-selection-page nav {
+  width: 100%;
+  background-color: var(--color-gray-light);
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.order-selection-page nav button.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-radius: 0;
+  border-left: 1px solid var(--color-primary);
+  border-right: 1px solid var(--color-primary);
+}
+
+.order-selection-page nav button.active:hover {
+  background-color: var(--color-primary);
+}
+
+.order-selection-page nav button {
+  background-color: var(--color-white);
+  color: var(--color-primary);
+  border-radius: 0;
+  border-left: 1px solid var(--color-background);
+  border-right: 1px solid var(--color-background);
+  flex-direction: row;
+  flex: 1;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.order-selection-page nav button:hover {
+  background-color: var(--color-gray-light);
+}
+
+.order-selection-page nav button:first-of-type {
+  border-left: none;
+  border-right: none;
+}
+
+.order-selection-page nav button:nth-of-type(2) {
+  border-right: none;
+}
+
+.order-selection-page nav button:last-of-type {
+  border-left: none;
+  border-right: none;
+}
+
+/* Tab Content / Main Content */
+.order-selection-page .tab-content {
+  width: 100%;
+  padding: var(--spacing-mid);
+  padding-top: var(--spacing-mid);
+  padding-bottom: 158px;
+  text-align: center;
+}
+
+/* Items container */
+.items-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-mid);
+}
+
+/* Item card styling */
+.item-card {
+  flex: 1 1 calc(25% - 1rem);
+  min-width: 400px;
+  max-width: calc(25%);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+  padding: var(--spacing-mid);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.item-card.selected .quantity-selector {
+  background-color: #caefc9;
+}
+
+figure {
+  width: 150px;
+  margin: 0 auto;
+}
+
+.item-image {
+  min-width: 100%;
+  min-height: 150px;
+  object-fit: cover;
+  background-color: var(--color-gray-light);
+  border-radius: var(--border-radius-mid)
+}
+
+/* Item name */
+.item-name {
+  margin: var(--spacing-mid);
+  margin-bottom: 0;
+  font-weight: 500;
+  color: var(--color-black);
+}
+
+/* Size selector */
+.size-selector {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: var(--spacing-mid);
+}
+
+.size-btn {
+  background-color: transparent;
+  border: 1px dashed var(--color-primary);
+  color: var(--color-primary);
+  border-radius: var(--border-radius-small);
+  padding: var(--spacing-small) var(--spacing-mid);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: unset;
+}
+
+.size-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.size-btn.active {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Item price */
+.item-price {
+  color: var(--color-primary);
+  font-size: calc(var(--font-size-subheader) * 1.5);
+  font-weight: 600;
+  margin: var(--spacing-mid);
+  margin-top: 0;
+}
+
+/* Quantity buttons */
+.quantity-selector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px dashed var(--color-primary);
+  padding: var(--spacing-small);
+  border-radius: var(--border-radius-small);
+}
+
+.quantity-btn {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  line-height: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-width: unset;
+  padding: 0;
+}
+
+.quantity-btn i {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.quantity-btn:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.quantity-btn:disabled {
+  background-color: var(--color-gray-light);
+  cursor: not-allowed;
+}
+
+.quantity-value {
+  font-size: 1.1rem;
+  font-weight: 500;
+  width: 30px;
+  text-align: center;
+}
