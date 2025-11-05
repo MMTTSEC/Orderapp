@@ -7,7 +7,7 @@ OrderCompleted.route = {
 
 export default function OrderCompleted() {
   const orderNumber = 3112;
-  const [secondsLeft, setSecondsLeft] = useState(5);
+  const [secondsLeft, setSecondsLeft] = useState(10);
 
   useEffect(() => {
     const timer = setInterval(() => {
