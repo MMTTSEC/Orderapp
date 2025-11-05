@@ -118,8 +118,10 @@ export default function OrderPayment() {
 
         {/* Pay Button */}
         <button
+          type="button"
           className="btn btn-success w-100 mt-4 py-2 fw-semibold"
           style={{ borderRadius: "10px" }}
+          onClick={() => { window.location.href = "/order-receipt"; }}
         >
           Pay
         </button>
