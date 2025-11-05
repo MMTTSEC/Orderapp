@@ -1,12 +1,21 @@
 // Order 5 from our mockup
+import { useNavigate } from "react-router-dom";
+import '../../styles/orderReceipt.css';
+
 OrderReceipt.route = {
   path: '/order-receipt'
 };
 
 export default function OrderReceipt() {
+  const navigate = useNavigate();
+  const goToOrderCompleted = () => {
+    navigate("/order-completed");
+  };
 
-  return <>
-    <h1>Order Receipt</h1>
-    <p>Let's start building the app.</p>
+   return <>
+    <div className="main-container order-receipt-page">
+      <button className="btn-left" onClick={goToOrderCompleted}><i className="bi bi-receipt"></i>KVITTO</button>
+      <button className="btn-right" onClick={goToOrderCompleted}><i className="bi bi-leaf-fill"></i>INGET KVITTO</button>
+    </div>
   </>
 }
