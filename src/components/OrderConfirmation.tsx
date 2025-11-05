@@ -38,14 +38,14 @@ export default function OrderConfirmation({ items, onClose }: OrderConfirmationP
   }, []);
 
   const getItemPrice = (item: Item): number => {
-    if (item.sizes) {
-      const selected = item.sizes.find((s) => s.size === item.selectedSize);
-      return selected ? selected.price : item.sizes[0].price;
-    }
-    return item.price ?? 0;
+    const basePrice = item.sizes 
+      ? (item.sizes.find(s => s.size === item.selectedSize)?.price ?? item.sizes[0].price)
+      : (item.price ?? 0);
+    
+    return basePrice * item.amount;
   };
 
-  const getTotalPrice = () => items.reduce((total, item) => total + (getItemPrice(item) * item.amount), 0);
+  const getTotalPrice = () => items.reduce((total, item) => total + getItemPrice(item), 0);
 
   return (
     <div className="order-confirmation-overlay">
@@ -62,11 +62,11 @@ export default function OrderConfirmation({ items, onClose }: OrderConfirmationP
             {items.length === 0 ? (
               <p>Inga artiklar i beställningen.</p>
             ) : (
-              <div className="cart-items" style={{ background: 'transparent', padding: 0 }}>
+              <div className="cart-items">
                 {items.map(item => (
-                  <div key={`${item.id}-${item.selectedSize || ''}`} className="cart-item" style={{ marginBottom: '1rem' }}>
+                  <div key={`${item.id}-${item.selectedSize || ''}`} className="cart-item">
                     <div className="item-info">
-                      <img src={item.image} alt={item.name} className="cart-item-image" />
+                      <span className="quantity">{item.amount}x</span>
                       <div className="item-meta">
                         <h3 className="item-name">{item.name}</h3>
                         {item.selectedSize && <span className="item-size">({item.selectedSize})</span>}
@@ -75,18 +75,15 @@ export default function OrderConfirmation({ items, onClose }: OrderConfirmationP
 
                     <div className="item-actions">
                       <span className="item-price">{getItemPrice(item)} kr</span>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span className="quantity">{item.amount}</span>
-                      </div>
                     </div>
                   </div>
                 ))}
-                <div className="cart-total" style={{ marginTop: '2rem', background: 'transparent', borderTop: '1px dashed #ddd' }}>
-                  <span className="full-price-span">TOTAL:</span>
+                <div className="cart-total">
+                  <span className="full-price-span">TOTAL SUMMA:</span>
                   <span className="full-price-amount">{getTotalPrice()} kr</span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
+                <div className="confirmation-actions">
                   <button
                     className="btn-confirm-order"
                     onClick={() => navigate('/order-payment')}

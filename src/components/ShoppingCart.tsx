@@ -98,7 +98,7 @@ export default function ShoppingCart({
             </div>
           ))}
           <div className="cart-total">
-            <span className="full-price-span">TOTAL:</span>
+            <span className="full-price-span">TOTAL SUMMA:</span>
             <span className="full-price-amount">{getTotalPrice()} kr</span>
           </div>
           <button className="btn-confirm-order" onClick={onConfirm}>Bekräfta Order</button>

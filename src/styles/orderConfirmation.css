@@ -1,13 +1,12 @@
 .order-confirmation-overlay {
   position: fixed;
-  inset: 0; /* top:0; right:0; bottom:0; left:0; */
+  inset: 0;
   z-index: 9999;
   background: var(--color-background, #fff);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* keep existing rules but ensure the page content inside the overlay looks good */
 .order-confirmation-page {
   width: 100%;
   padding: 0;
@@ -15,7 +14,7 @@
   min-height: 100vh;
 }
 
-/* you already have .confirmation-header .return-button rules; keep them */
+/* Confirmation Header */
 .order-confirmation-page .confirmation-header {
   width: 100%;
   max-width: 900px;
@@ -55,15 +54,15 @@
   padding-top: 0;
 }
 
+/* Cart Items */
 .order-confirmation-page .confirmation-body .cart-items .cart-item {
   display: flex;
     justify-content: space-between;
     align-items: center;
     padding: var(--spacing-small);
     gap: var(--spacing-small);
-    border-bottom: 1px dashed #eee;
     background-color: var(--color-white);
-    margin-bottom: var(--spacing-big);
+    margin-bottom: var(--spacing-mid);
     border-radius: var(--border-radius-tiny);
 }
 
@@ -73,6 +72,7 @@
   align-items: center;
 }
 
+/* Item meta (name and size) */
 .order-confirmation-page .confirmation-body .cart-items .cart-item .item-info .item-meta {
   display: flex;
   flex-direction: row;
@@ -80,13 +80,19 @@
   gap: var(--spacing-small);
 }
 
+.order-confirmation-page .confirmation-body .cart-items .cart-item .item-info .quantity {
+  text-align: center;
+  padding-left: var(--spacing-small);
+  font-weight: 600;
+}
+
 .order-confirmation-page .confirmation-body .cart-items .cart-item .item-info .item-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 220px;
-  margin: var(--spacing-mid);
-  margin-right: 0;
+  padding-left: var(--spacing-mid);
+  margin: 0;
 }
 
 .order-confirmation-page .confirmation-body .cart-items .cart-item .item-info .item-size {
@@ -103,6 +109,47 @@
   flex-shrink: 0;
 }
 
+/* Item actions */
+.order-confirmation-page .confirmation-body .cart-items .cart-item .item-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-big);
+  padding-right: var(--spacing-small);
+}
+
+.order-confirmation-page .confirmation-body .cart-items .cart-item .item-actions .item-price {
+  margin: 0;
+  color: var(--color-black);
+  font-size: var(--font-size-subheader);
+}
+
+/* Total Price */
+.order-confirmation-page .confirmation-body .cart-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--spacing-mid);
+  padding-bottom: var(--spacing-big);
+  color: var(--color-primary);
+}
+
+.order-confirmation-page .confirmation-body .cart-total .full-price-span {
+  font-size: var(--font-size-subheader);
+  line-height: 1.1;
+  font-weight: 600;
+  padding-top: var(--spacing-mid);
+}
+
+.order-confirmation-page .confirmation-body .cart-total .full-price-amount {
+  font-size: calc(var(--font-size-header) * 1.5);
+  font-weight: 600;
+}
+
+/* Confirm Order Actions */
+.order-confirmation-page .confirmation-body .confirmation-actions {
+  display: flex;
+  justify-content: center;
+}
 
 .order-confirmation-page .confirmation-body .btn-confirm-order {
   flex-direction: row;
