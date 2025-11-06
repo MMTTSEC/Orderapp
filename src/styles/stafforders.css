@@ -154,7 +154,7 @@
 
 .order-indicator {
     width: 4px;
-    height: 60px;
+    height: 50px;
     background-color: var(--color-primary);
     border-radius: 2px;
     flex-shrink: 0;
@@ -164,18 +164,12 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
 .order-number {
     font-size: 16px;
     font-weight: 600;
-    color: var(--color-black);
-}
-
-.order-customer {
-    font-size: 14px;
-    font-weight: 400;
     color: var(--color-black);
 }
 
