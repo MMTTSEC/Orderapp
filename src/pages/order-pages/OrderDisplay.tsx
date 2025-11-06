@@ -29,9 +29,19 @@ export default function OrderDisplay() {
   const [enteredIds, setEnteredIds] = useState<Set<string>>(new Set());
   const [landingIds, setLandingIds] = useState<Set<string>>(new Set());
   const [heroNum, setHeroNum] = useState<string | null>(null);
+  const soundRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+    // prepare notification sound from public folder
+    try {
+      if (!soundRef.current) {
+        const el = new Audio('/sounds/new-notification-021-370045.mp3');
+        el.preload = 'auto';
+        el.volume = 0.6;
+        soundRef.current = el;
+      }
+    } catch {}
 
     async function safeJson(res: Response) {
       try { return await res.json(); } catch { return null; }
@@ -135,6 +145,8 @@ export default function OrderDisplay() {
         const from = normalizeStatus(prevStatus);
         const to = normalizeStatus(status);
         if (from === 'in_progress' && to === 'finished') {
+          // play notification sound
+          try { soundRef.current && soundRef.current.play().catch(() => {}); } catch {}
           // Use overlay hero + landing; skip chip enlarge class
           setHeroNum(num);
           window.setTimeout(() => {
