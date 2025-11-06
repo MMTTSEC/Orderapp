@@ -1,5 +1,5 @@
 // Previous Index of our mockup, it's the individual page for displaying finished and in progress orders.
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import '../../styles/orderdisplay.css';
 
 OrderDisplay.route = {
@@ -24,6 +24,11 @@ function normalizeStatus(status: unknown): 'in_progress' | 'finished' | 'pending
 export default function OrderDisplay() {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const prevStatusByNumberRef = useRef<Record<string, string>>({});
+  const [promotedIds, setPromotedIds] = useState<Set<string>>(new Set());
+  const [enteredIds, setEnteredIds] = useState<Set<string>>(new Set());
+  const [landingIds, setLandingIds] = useState<Set<string>>(new Set());
+  const [heroNum, setHeroNum] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -107,6 +112,62 @@ export default function OrderDisplay() {
     return () => { evt.close(); };
   }, []);
 
+  // Detect movements/entries for animations
+  useEffect(() => {
+    const nextStatusByNumber: Record<string, string> = {};
+    for (const o of orders) {
+      const key = String(o.number ?? o.id ?? '');
+      if (!key) continue;
+      nextStatusByNumber[key] = o.status ?? '';
+    }
+
+    const prev = prevStatusByNumberRef.current;
+    const newPromoted = new Set(promotedIds);
+    const newEntered = new Set(enteredIds);
+    const newLanding = new Set(landingIds);
+
+    for (const [num, status] of Object.entries(nextStatusByNumber)) {
+      const prevStatus = prev[num];
+      if (!prevStatus) {
+        // new item
+        newEntered.add(num);
+      } else if (prevStatus !== status) {
+        const from = normalizeStatus(prevStatus);
+        const to = normalizeStatus(status);
+        if (from === 'in_progress' && to === 'finished') {
+          // Use overlay hero + landing; skip chip enlarge class
+          setHeroNum(num);
+          window.setTimeout(() => {
+            setHeroNum(null);
+            setLandingIds((old) => new Set([...Array.from(old), num]));
+            window.setTimeout(() => {
+              setLandingIds((old2) => {
+                const c = new Set(old2);
+                c.delete(num);
+                return c;
+              });
+            }, 2200);
+          }, 3600);
+        }
+      }
+    }
+
+    // Update prev snapshot immediately for robust diffing on next payload
+    prevStatusByNumberRef.current = nextStatusByNumber;
+
+    if (newPromoted.size || newEntered.size || newLanding.size) {
+      setPromotedIds(newPromoted);
+      setEnteredIds(newEntered);
+      setLandingIds(newLanding);
+      // clear general promoted/entered flags after slow animation duration
+      const t = setTimeout(() => {
+        setPromotedIds(new Set());
+        setEnteredIds(new Set());
+      }, 8000);
+      return () => clearTimeout(t);
+    }
+  }, [orders]);
+
   const { inProgressIds, finishedIds } = useMemo(() => {
     const inProg: Array<number | string> = [];
     const done: Array<number | string> = [];
@@ -132,7 +193,7 @@ export default function OrderDisplay() {
             inProgressIds.map((num) => (
               <div
                 key={String(num)}
-                className={`order-chip`}
+                className={`order-chip ${enteredIds.has(String(num)) ? 'order-chip--enter' : ''}`}
               >
                 #{num}
               </div>
@@ -148,11 +209,21 @@ export default function OrderDisplay() {
             <div className="order-chip order-chip--done">Laddar...</div>
           ) : (
             finishedIds.map((num) => (
-              <div key={String(num)} className="order-chip order-chip--done">#{num}</div>
+              <div
+                key={String(num)}
+                className={`order-chip order-chip--done ${landingIds.has(String(num)) ? 'order-chip--land' : ''}`}
+              >
+                #{num}
+              </div>
             ))
           )}
         </div>
       </section>
+      {heroNum && (
+        <div className="order-hero">
+          <div className="order-hero__badge">#{heroNum}</div>
+        </div>
+      )}
     </div>
   </>
 }
