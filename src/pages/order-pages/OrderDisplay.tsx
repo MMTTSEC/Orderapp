@@ -88,6 +88,25 @@ export default function OrderDisplay() {
     return () => { isMounted = false; };
   }, []);
 
+  // Subscribe to SSE updates from backend and live-update orders
+  useEffect(() => {
+    const evt = new EventSource('/api/sse/orders');
+    evt.onmessage = (e) => {
+      try {
+        const payload = JSON.parse(e.data);
+        if (payload?.type === 'snapshot' && Array.isArray(payload.orders)) {
+          const next: OrderItem[] = payload.orders.map((o: any) => ({ id: o.id, number: o.number, status: o.status }));
+          setOrders(next);
+          setLoading(false);
+        }
+      } catch { /* ignore parse errors */ }
+    };
+    evt.onerror = () => {
+      // keep the existing data; browser will try to reconnect
+    };
+    return () => { evt.close(); };
+  }, []);
+
   const { inProgressIds, finishedIds } = useMemo(() => {
     const inProg: Array<number | string> = [];
     const done: Array<number | string> = [];
