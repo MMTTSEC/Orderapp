@@ -1,0 +1,115 @@
+.order-payment-page {
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
+
+/* main content container  */
+.order-payment-page .payment-content {
+  width: 100%;
+  max-width: 900px; 
+  padding: var(--spacing-mid); 
+  margin: var(--spacing-mid) auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-mid);
+  background: var(--color-white);
+  border-radius: var(--border-radius-tiny);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+}
+
+/* Title */
+.order-payment-page .payment-content > h1 {
+  margin: 0;
+  padding: 0;
+  font-size: var(--font-size-subheader);
+  color: var(--color-primary);
+}
+
+/* Payment options container */
+.order-payment-page .patment-options {
+  display: flex;
+  flex-direction: column; 
+  gap: var(--spacing-small);
+  width: 100%;
+  box-sizing: border-box;
+}
+/* Individual payment option */
+.order-payment-page .payment-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-small);
+  padding: calc(var(--spacing-small) + 6px);
+  border-radius: var(--border-radius-small);
+  border: 1px solid var(--color-gray-light);
+  background: transparent;
+  cursor: pointer;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Selected state */
+.order-payment-page .payment-option.selected {
+  border: 2px solid var(--color-primary);
+  background: rgba(22,112,62,0.03);
+}
+
+/* Label inside option */
+.order-payment-page .payment-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-small);
+  cursor: pointer;
+}
+
+/* Radio input styling */
+.order-payment-page .payment-label input[type="radio"] {
+  cursor: pointer;
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Text next to radio */
+.order-payment-page .payment-label-text {
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-black);
+}
+
+/* Icon styling and per-method colors */
+.order-payment-page .payment-option .icon {
+  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* specific colors for icons */
+.order-payment-page .payment-option .icon.swish { color: var(--color-green, #14A44D); }
+.order-payment-page .payment-option .icon.card  { color: var(--color-primary, #16703E); }
+.order-payment-page .payment-option .icon.paypal { color: var(--color-secondary, #469BFB); }
+.order-payment-page .payment-option .icon.klarna { color: var(--color-red, #E70707); }
+
+/* Small helpers */
+.order-payment-page .form-check {
+  display: block;
+  min-height: 1.5rem;
+  padding-left: 1.5rem;
+  margin-bottom: .125rem;
+}
+
+/* Ensure spacing on very small screens */
+@media (max-width: 420px) {
+  .order-payment-page .payment-content {
+    padding: var(--spacing-small);
+    margin: var(--spacing-small);
+  }
+  .order-payment-page .payment-label-text {
+    font-size: 0.95rem;
+  }
+}
