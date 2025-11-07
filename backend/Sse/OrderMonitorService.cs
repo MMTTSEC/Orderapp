@@ -22,7 +22,7 @@ public class OrderMonitorService : BackgroundService
             try
             {
                 var snapshot = await FetchOrdersSnapshot(stoppingToken);
-                var currentStatus = snapshot.ToDictionary(o => o.number, o => o.status);
+                var currentStatus = BuildStatusLookup(snapshot);
 
                 if (!DictionariesEqual(_lastStatusByOrder, currentStatus))
                 {
@@ -102,6 +102,24 @@ public class OrderMonitorService : BackgroundService
 
         orders = orders.Where(o => !string.Equals(o.status, "Pending", StringComparison.OrdinalIgnoreCase)).ToList();
         return orders;
+    }
+
+    private static IReadOnlyDictionary<string, string> BuildStatusLookup(IEnumerable<OrderDto> snapshot)
+    {
+        var lookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var order in snapshot)
+        {
+            if (string.IsNullOrWhiteSpace(order.number))
+            {
+                continue;
+            }
+
+            // If multiple entries share the same number, keep the latest status encountered
+            lookup[order.number] = order.status;
+        }
+
+        return lookup;
     }
 }
 
