@@ -49,7 +49,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCan
                     >
                         <div className="order-indicator"></div>
                         <div className="order-info">
-                            <div className="order-number">Order: #{order.title}</div>
+                            <div className="order-number-list">Order: #{order.title}</div>
                             <div className="order-time">Placed: {formatTimeAgo(order.orderPlacedAt)}</div>
                         </div>
                         <div className="order-actions">
