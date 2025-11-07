@@ -1,7 +1,8 @@
 // src/pages/order-pages/OrderPayment.tsx
 import { useState } from "react";
 import { BsCreditCard2Front, BsPaypal, BsBank, BsPhoneFill } from "react-icons/bs";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "../../styles/orderPayment.css";
+
 OrderPayment.route = {
   path: '/order-payment'
 };
@@ -9,121 +10,91 @@ export default function OrderPayment() {
   const [selectedMethod, setSelectedMethod] = useState("swish");
 
   return (
-    <div className="container-fluid py-4">
-      <div className="mx-auto p-4 w-100" style={{ minHeight: "480px", maxWidth: "900px" }}>
-        <div className="d-flex align-items-center mb-4">
-          <button
-            type="button"
-            className="btn p-0 me-2"
-            aria-label="Go back"
-            style={{ color: "var(--color-primary)", background: "transparent" }}
-            onClick={() => {
-              if (window.history.length > 1) {
-                window.history.back();
-              } else {
-                window.location.href = "/order-display";
-              }
-            }}
-          >
-            <i className="bi bi-arrow-return-left fs-4"></i>
-          </button>
-          <span className="text-muted">Order 5</span>
-        </div>
+    <div className="main-container order-payment-page">
+      <div className="payment-content">
+        <h1>Välj Betalningsmetod</h1>
 
-        <div className="p-3">
+        <div className="patment-options">
           {/* Swish */}
           <div
-            className={`d-flex justify-content-between align-items-center p-2 mb-2 rounded ${
-              selectedMethod === "swish" ? "border border-success" : "border"
-            }`}
+            className={`payment-option ${selectedMethod === "swish" ? "selected" : ""}`}
             onClick={() => setSelectedMethod("swish")}
-            style={{ cursor: "pointer" }}
+            role="button"
           >
-            <div className="form-check">
+            <label className="payment-label">
               <input
                 type="radio"
-                className="form-check-input"
                 name="payment-method"
                 checked={selectedMethod === "swish"}
                 onChange={() => setSelectedMethod("swish")}
               />
-              <label className="form-check-label fw-semibold">Swish</label>
-            </div>
-            <BsPhoneFill className="text-success fs-5" />
+              <span className="payment-label-text">Swish</span>
+            </label>
+            <BsPhoneFill className="icon swish" />
           </div>
 
           {/* Card */}
           <div
-            className={`d-flex justify-content-between align-items-center p-2 mb-2 rounded ${
-              selectedMethod === "card" ? "border border-success" : "border"
-            }`}
+            className={`payment-option ${selectedMethod === "card" ? "selected" : ""}`}
             onClick={() => setSelectedMethod("card")}
-            style={{ cursor: "pointer" }}
+            role="button"
           >
-            <div className="form-check">
+            <label className="payment-label">
               <input
                 type="radio"
-                className="form-check-input"
                 name="payment-method"
                 checked={selectedMethod === "card"}
                 onChange={() => setSelectedMethod("card")}
               />
-              <label className="form-check-label fw-semibold">Add card</label>
-            </div>
-            <BsCreditCard2Front className="text-primary fs-5" />
+              <span className="payment-label-text">Add card</span>
+            </label>
+            <BsCreditCard2Front className="icon card" />
           </div>
 
           {/* PayPal */}
           <div
-            className={`d-flex justify-content-between align-items-center p-2 mb-2 rounded ${
-              selectedMethod === "paypal" ? "border border-success" : "border"
-            }`}
+            className={`payment-option ${selectedMethod === "paypal" ? "selected" : ""}`}
             onClick={() => setSelectedMethod("paypal")}
-            style={{ cursor: "pointer" }}
+            role="button"
           >
-            <div className="form-check">
+            <label className="payment-label">
               <input
                 type="radio"
-                className="form-check-input"
                 name="payment-method"
                 checked={selectedMethod === "paypal"}
                 onChange={() => setSelectedMethod("paypal")}
               />
-              <label className="form-check-label fw-semibold">PayPal</label>
-            </div>
-            <BsPaypal className="text-primary fs-4" />
+              <span className="payment-label-text">PayPal</span>
+            </label>
+            <BsPaypal className="icon paypal" />
           </div>
 
           {/* Klarna */}
           <div
-            className={`d-flex justify-content-between align-items-center p-2 mb-2 rounded ${
-              selectedMethod === "klarna" ? "border border-success" : "border"
-            }`}
+            className={`payment-option ${selectedMethod === "klarna" ? "selected" : ""}`}
             onClick={() => setSelectedMethod("klarna")}
-            style={{ cursor: "pointer" }}
+            role="button"
           >
-            <div className="form-check">
+            <label className="payment-label">
               <input
                 type="radio"
-                className="form-check-input"
                 name="payment-method"
                 checked={selectedMethod === "klarna"}
                 onChange={() => setSelectedMethod("klarna")}
               />
-              <label className="form-check-label fw-semibold">Klarna</label>
-            </div>
-            <BsBank className="text-danger fs-4" />
+              <span className="payment-label-text">Klarna</span>
+            </label>
+            <BsBank className="icon klarna" />
           </div>
         </div>
 
         {/* Pay Button */}
         <button
           type="button"
-          className="btn btn-success w-100 mt-4 py-2 fw-semibold"
-          style={{ borderRadius: "10px" }}
+          className="pay-button"
           onClick={() => { window.location.href = "/order-receipt"; }}
         >
-          Pay
+          Betala
         </button>
       </div>
     </div>
