@@ -137,6 +137,14 @@ export default function StaffIndex() {
     // Add your cancel order logic here
   };
 
+  // Filter orders based on search query (only search by order number/title)
+  const filteredOrders = orders.filter((order) => {
+    if (!searchQuery.trim()) return true;
+    const orderNumber = order.title.toLowerCase();
+    const query = searchQuery.toLowerCase().trim();
+    return orderNumber.includes(query);
+  });
+
   useEffect(() => {
     verifyLogin();
     fetchOrders(activeFilter);
@@ -217,7 +225,7 @@ export default function StaffIndex() {
             />
 
             <OrdersList
-              orders={orders}
+              orders={filteredOrders}
               onConfirm={handleConfirmOrder}
               onCancel={handleCancelOrder}
             />
