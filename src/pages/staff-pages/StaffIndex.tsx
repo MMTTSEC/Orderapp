@@ -138,12 +138,31 @@ export default function StaffIndex() {
   };
 
   // Filter orders based on search query (only search by order number/title)
-  const filteredOrders = orders.filter((order) => {
-    if (!searchQuery.trim()) return true;
-    const orderNumber = order.title.toLowerCase();
-    const query = searchQuery.toLowerCase().trim();
-    return orderNumber.includes(query);
-  });
+  const filteredOrders = orders
+    .filter((order) => {
+      if (!searchQuery.trim()) return true;
+      const orderNumber = order.title.toLowerCase();
+      const query = searchQuery.toLowerCase().trim();
+      return orderNumber.startsWith(query);
+    })
+    .sort((a, b) => {
+      if (!searchQuery.trim()) return 0;
+      const query = searchQuery.toLowerCase().trim();
+      const aTitle = a.title.toLowerCase();
+      const bTitle = b.title.toLowerCase();
+
+      // Exact match comes first
+      if (aTitle === query && bTitle !== query) return -1;
+      if (bTitle === query && aTitle !== query) return 1;
+
+      // Otherwise sort by length (shorter comes first)
+      if (aTitle.length !== bTitle.length) {
+        return aTitle.length - bTitle.length;
+      }
+
+      // If same length, sort alphabetically
+      return aTitle.localeCompare(bTitle);
+    });
 
   useEffect(() => {
     verifyLogin();
