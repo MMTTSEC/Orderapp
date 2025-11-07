@@ -45,11 +45,11 @@ export default function StaffOrder() {
   const fetchOrderDetails = async () => {
     try {
       // First try to fetch from CustomerOrder endpoint
-      let response = await fetch(`http://localhost:5001/api/CustomerOrder/${id}`);
+      let response = await fetch(`/api/CustomerOrder/${id}`);
 
       if (!response.ok) {
         // If not found, try HandleOrder endpoint
-        response = await fetch(`http://localhost:5001/api/expand/HandleOrder/${id}`);
+        response = await fetch(`/api/expand/HandleOrder/${id}`);
       }
 
       if (!response.ok) {

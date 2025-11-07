@@ -12,7 +12,7 @@ interface LoginStatusResult {
     userData: UserData | null;
 }
 
-const API_BASE_URL = 'http://localhost:5001/api/auth';
+const API_BASE_URL = '/api/auth';
 
 export const checkLoginStatus = async (): Promise<LoginStatusResult> => {
     try {

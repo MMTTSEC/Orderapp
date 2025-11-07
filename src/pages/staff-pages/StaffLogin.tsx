@@ -41,7 +41,7 @@ export default function StaffLogin() {
       password: password,
     };
 
-    const apiEndpoint = 'http://localhost:5001/api/auth/login';
+    const apiEndpoint = '/api/auth/login';
 
     console.log('Attempting to log in with payload:', payload);
 

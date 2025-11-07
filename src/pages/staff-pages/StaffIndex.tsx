@@ -51,9 +51,9 @@ export default function StaffIndex() {
 
       // Determine endpoint based on filter
       if (filter === 'new') {
-        endpoint = 'http://localhost:5001/api/CustomerOrder';
+        endpoint = '/api/CustomerOrder';
       } else if (filter === 'inprogress' || filter === 'finished') {
-        endpoint = 'http://localhost:5001/api/expand/HandleOrder';
+        endpoint = '/api/expand/HandleOrder';
       }
 
       const response = await fetch(endpoint);
@@ -105,11 +105,11 @@ export default function StaffIndex() {
   const fetchOrderCounts = async () => {
     try {
       // Fetch new orders count
-      const newResponse = await fetch('http://localhost:5001/api/CustomerOrder');
+      const newResponse = await fetch('/api/CustomerOrder');
       const newData = newResponse.ok ? await newResponse.json() : [];
 
       // Fetch all handled orders
-      const handleResponse = await fetch('http://localhost:5001/api/expand/HandleOrder');
+      const handleResponse = await fetch('/api/expand/HandleOrder');
       const handleData = handleResponse.ok ? await handleResponse.json() : [];
 
       // Count inprogress orders
