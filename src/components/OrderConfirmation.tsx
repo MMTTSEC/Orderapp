@@ -52,7 +52,7 @@ export default function OrderConfirmation({ items, onClose }: OrderConfirmationP
       <div className="main-container order-confirmation-page">
         <div className="confirmation-header">
           <button type="button" className="return-button" onClick={onClose}>
-            <i className="bi bi-arrow-return-left"></i> Return
+            <i className="bi bi-arrow-return-left"></i> Tillbaka
           </button>
           <h1>Din Order</h1>
         </div>
