@@ -40,20 +40,60 @@ export default function StaffIndex() {
     setLoading(false);
   };
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (filter: string = 'new') => {
     try {
-      const response = await fetch('http://localhost:5001/api/CustomerOrder');
+      let endpoint = '';
+
+      // Determine endpoint based on filter
+      if (filter === 'new') {
+        endpoint = 'http://localhost:5001/api/CustomerOrder';
+      } else if (filter === 'inprogress' || filter === 'finished') {
+        endpoint = 'http://localhost:5001/api/expand/HandleOrder';
+      }
+
+      const response = await fetch(endpoint);
       if (!response.ok) {
         throw new Error('Failed to fetch orders');
       }
-      const data = await response.json();
+      let data = await response.json();
+
+      // Filter data based on orderStatus if using HandleOrder endpoint
+      if (filter === 'inprogress') {
+        data = data.filter((order: any) => {
+          const status = order.orderStatus?.title?.toLowerCase() || order.orderStatus?.orderStatus?.toLowerCase() || '';
+          return status === 'in progress' || status === 'inprogress' || status === 'pending';
+        });
+      } else if (filter === 'finished') {
+        data = data.filter((order: any) => {
+          const status = order.orderStatus?.title?.toLowerCase() || order.orderStatus?.orderStatus?.toLowerCase() || '';
+          return status === 'finished' || status === 'completed';
+        });
+      }
+
+      // Map the data to match the Order interface structure
+      const mappedOrders = data.map((order: any) => {
+        // For HandleOrder endpoint, extract customerOrder data
+        if (order.customerOrder) {
+          return {
+            id: order.id,
+            title: order.customerOrder.title,
+            product: order.customerOrder.product,
+            orderId: order.customerOrder.orderId,
+            orderPlacedAt: order.customerOrder.orderPlacedAt
+          };
+        }
+        // For CustomerOrder endpoint, use data directly
+        return order;
+      });
+
       // Sort orders by orderPlacedAt, oldest first (ascending order)
-      const sortedOrders = data.sort((a: Order, b: Order) => {
+      const sortedOrders = mappedOrders.sort((a: Order, b: Order) => {
         return new Date(a.orderPlacedAt).getTime() - new Date(b.orderPlacedAt).getTime();
       });
       setOrders(sortedOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
+      setOrders([]);
     }
   };
 
@@ -83,7 +123,8 @@ export default function StaffIndex() {
 
   const handleFilterChange = (filter: string) => {
     setActiveFilter(filter);
-    // Add your filter logic here
+    // Fetch orders based on the selected filter
+    fetchOrders(filter);
   };
 
   const handleConfirmOrder = (orderId: string) => {
@@ -98,8 +139,13 @@ export default function StaffIndex() {
 
   useEffect(() => {
     verifyLogin();
-    fetchOrders();
+    fetchOrders(activeFilter);
   }, []);
+
+  // Fetch orders when filter changes
+  useEffect(() => {
+    fetchOrders(activeFilter);
+  }, [activeFilter]);
 
   // Define navigation items
   const navItems = [
