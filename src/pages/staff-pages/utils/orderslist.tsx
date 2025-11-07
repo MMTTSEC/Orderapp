@@ -13,9 +13,10 @@ interface OrdersListProps {
     orders: Order[];
     onConfirm?: (orderId: string) => void;
     onCancel?: (orderId: string) => void;
+    onOrderClick?: (orderId: string) => void;
 }
 
-export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCancel }) => {
+export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCancel, onOrderClick }) => {
     const formatTimeAgo = (dateString: string) => {
         const orderDate = new Date(dateString);
         const now = new Date();
@@ -40,7 +41,12 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCan
                 </p>
             ) : (
                 orders.map((order) => (
-                    <div key={order.id} className="order-card">
+                    <div
+                        key={order.id}
+                        className="order-card"
+                        onClick={() => onOrderClick?.(order.id)}
+                        style={{ cursor: onOrderClick ? 'pointer' : 'default' }}
+                    >
                         <div className="order-indicator"></div>
                         <div className="order-info">
                             <div className="order-number">Order: #{order.title}</div>
@@ -50,7 +56,10 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCan
                             <button
                                 className="action-button confirm"
                                 aria-label="Confirm order"
-                                onClick={() => onConfirm?.(order.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onConfirm?.(order.id);
+                                }}
                             >
                                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="white" />
@@ -59,7 +68,10 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCan
                             <button
                                 className="action-button cancel"
                                 aria-label="Cancel order"
-                                onClick={() => onCancel?.(order.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onCancel?.(order.id);
+                                }}
                             >
                                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="white" />

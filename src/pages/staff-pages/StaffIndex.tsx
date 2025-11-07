@@ -32,6 +32,11 @@ export default function StaffIndex() {
   const [activeFilter, setActiveFilter] = useState('new');
   const [searchQuery, setSearchQuery] = useState('');
   const [orders, setOrders] = useState<Order[]>([]);
+  const [orderCounts, setOrderCounts] = useState({
+    new: 0,
+    inprogress: 0,
+    finished: 0
+  });
 
   const verifyLogin = async () => {
     const { isAuthorized: authorized, userData: data } = await checkLoginStatus();
@@ -97,6 +102,38 @@ export default function StaffIndex() {
     }
   };
 
+  const fetchOrderCounts = async () => {
+    try {
+      // Fetch new orders count
+      const newResponse = await fetch('http://localhost:5001/api/CustomerOrder');
+      const newData = newResponse.ok ? await newResponse.json() : [];
+
+      // Fetch all handled orders
+      const handleResponse = await fetch('http://localhost:5001/api/expand/HandleOrder');
+      const handleData = handleResponse.ok ? await handleResponse.json() : [];
+
+      // Count inprogress orders
+      const inprogressCount = handleData.filter((order: any) => {
+        const status = order.orderStatus?.title?.toLowerCase() || order.orderStatus?.orderStatus?.toLowerCase() || '';
+        return status === 'in progress' || status === 'inprogress' || status === 'pending';
+      }).length;
+
+      // Count finished orders
+      const finishedCount = handleData.filter((order: any) => {
+        const status = order.orderStatus?.title?.toLowerCase() || order.orderStatus?.orderStatus?.toLowerCase() || '';
+        return status === 'finished' || status === 'completed';
+      }).length;
+
+      setOrderCounts({
+        new: newData.length,
+        inprogress: inprogressCount,
+        finished: finishedCount
+      });
+    } catch (error) {
+      console.error('Error fetching order counts:', error);
+    }
+  };
+
   const handleLogout = async () => {
     const success = await logout();
     if (success) {
@@ -137,6 +174,10 @@ export default function StaffIndex() {
     // Add your cancel order logic here
   };
 
+  const handleOrderClick = (orderId: string) => {
+    navigate(`/staff/order/${orderId}`);
+  };
+
   // Filter orders based on search query (only search by order number/title)
   const filteredOrders = orders
     .filter((order) => {
@@ -167,11 +208,13 @@ export default function StaffIndex() {
   useEffect(() => {
     verifyLogin();
     fetchOrders(activeFilter);
+    fetchOrderCounts();
   }, []);
 
   // Fetch orders when filter changes
   useEffect(() => {
     fetchOrders(activeFilter);
+    fetchOrderCounts();
   }, [activeFilter]);
 
   // Define navigation items
@@ -204,20 +247,21 @@ export default function StaffIndex() {
     {
       id: 'new',
       label: 'New',
-      count: 3,
+      count: orderCounts.new,
       isActive: activeFilter === 'new',
       onClick: () => handleFilterChange('new'),
     },
     {
       id: 'inprogress',
       label: 'In progress',
-      count: 11,
+      count: orderCounts.inprogress,
       isActive: activeFilter === 'inprogress',
       onClick: () => handleFilterChange('inprogress'),
     },
     {
       id: 'finished',
       label: 'finished',
+      count: orderCounts.finished,
       isActive: activeFilter === 'finished',
       onClick: () => handleFilterChange('finished'),
     },
@@ -247,6 +291,7 @@ export default function StaffIndex() {
               orders={filteredOrders}
               onConfirm={handleConfirmOrder}
               onCancel={handleCancelOrder}
+              onOrderClick={handleOrderClick}
             />
           </main>
 
