@@ -21,6 +21,8 @@ interface Order {
   product: string[];
   orderId: number | object;
   orderPlacedAt: string;
+  handleOrderId?: string;
+  status?: 'pending' | 'inprogress' | 'finished' | 'other';
 }
 
 export default function StaffIndex() {
@@ -166,27 +168,42 @@ export default function StaffIndex() {
           handleResponse.json()
         ]);
 
-        const handleStatusByCustomerId: Record<string, 'pending' | 'inprogress' | 'finished' | 'other'> = {};
+        const handleStatusByCustomerId: Record<string, { status: 'pending' | 'inprogress' | 'finished' | 'other'; handleOrderId?: string }> = {};
 
         if (Array.isArray(handleData)) {
           handleData.forEach((handle: any) => {
             const customerId = handle?.customerOrder?.id ?? handle?.customerOrderId ?? handle?.customerOrder?.contentItemId;
 
             if (typeof customerId === 'string') {
-              handleStatusByCustomerId[customerId] = extractHandleStatus(handle);
+              handleStatusByCustomerId[customerId] = {
+                status: extractHandleStatus(handle),
+                handleOrderId: handle?.id ?? handle?.contentItemId
+              };
             }
           });
         }
 
         const filteredCustomerOrders = (Array.isArray(customerData) ? customerData : []).filter((order: any) => {
-          const status = handleStatusByCustomerId[order?.id];
-          if (!status) {
+          const statusInfo = handleStatusByCustomerId[order?.id];
+          if (!statusInfo) {
             return true;
           }
-          return status !== 'inprogress' && status !== 'finished';
+          return statusInfo.status !== 'inprogress' && statusInfo.status !== 'finished';
         });
 
-        mappedOrders = filteredCustomerOrders.map((order: any) => order as Order);
+        mappedOrders = filteredCustomerOrders.map((order: any) => {
+          const statusInfo = handleStatusByCustomerId[order?.id];
+
+          return {
+            id: order.id,
+            title: order.title,
+            product: order.product,
+            orderId: order.orderId,
+            orderPlacedAt: order.orderPlacedAt,
+            handleOrderId: statusInfo?.handleOrderId,
+            status: statusInfo?.status
+          } satisfies Order;
+        });
       } else {
         const handleResponse = await fetch('/api/expand/HandleOrder', commonFetchOptions);
 
@@ -208,14 +225,19 @@ export default function StaffIndex() {
         });
 
         mappedOrders = filteredHandleOrders.map((order: any) => {
+          const status = extractHandleStatus(order);
+          const handleOrderId = order.id ?? order.contentItemId;
+
           if (order.customerOrder) {
             return {
-              id: order.id,
+              id: order.customerOrder.id ?? order.customerOrder.contentItemId ?? order.customerOrder.title,
               title: order.customerOrder.title,
               product: order.customerOrder.product,
               orderId: order.customerOrder.orderId,
-              orderPlacedAt: order.customerOrder.orderPlacedAt
-            };
+              orderPlacedAt: order.customerOrder.orderPlacedAt,
+              handleOrderId,
+              status
+            } satisfies Order;
           }
 
           return {
@@ -223,8 +245,10 @@ export default function StaffIndex() {
             title: order.title ?? order.displayText ?? 'Order',
             product: order.product ?? [],
             orderId: order.orderId ?? order.id,
-            orderPlacedAt: order.orderPlacedAt ?? new Date().toISOString()
-          } as Order;
+            orderPlacedAt: order.orderPlacedAt ?? new Date().toISOString(),
+            handleOrderId,
+            status
+          } satisfies Order;
         });
       }
 
@@ -256,23 +280,26 @@ export default function StaffIndex() {
       const newData = newResponse.ok ? await newResponse.json() : [];
       const handleData = handleResponse.ok ? await handleResponse.json() : [];
 
-      const handleStatusByCustomerId: Record<string, 'pending' | 'inprogress' | 'finished' | 'other'> = {};
+      const handleStatusByCustomerId: Record<string, { status: 'pending' | 'inprogress' | 'finished' | 'other'; handleOrderId?: string }> = {};
 
       if (Array.isArray(handleData)) {
         handleData.forEach((order: any) => {
           const customerId = order?.customerOrder?.id ?? order?.customerOrderId ?? order?.customerOrder?.contentItemId;
           if (typeof customerId === 'string') {
-            handleStatusByCustomerId[customerId] = extractHandleStatus(order);
+            handleStatusByCustomerId[customerId] = {
+              status: extractHandleStatus(order),
+              handleOrderId: order?.id ?? order?.contentItemId
+            };
           }
         });
       }
 
       const newCount = (Array.isArray(newData) ? newData : []).filter((order: any) => {
-        const status = handleStatusByCustomerId[order?.id];
-        if (!status) {
+        const statusInfo = handleStatusByCustomerId[order?.id];
+        if (!statusInfo) {
           return true;
         }
-        return status !== 'inprogress' && status !== 'finished';
+        return statusInfo.status !== 'inprogress' && statusInfo.status !== 'finished';
       }).length;
 
       const inprogressCount = (Array.isArray(handleData) ? handleData : []).filter((order: any) => extractHandleStatus(order) === 'inprogress').length;
@@ -335,18 +362,33 @@ export default function StaffIndex() {
         return;
       }
 
-      const updateResponse = await fetch('/api/HandleOrder', {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: targetOrder.title ?? `Order ${orderId}`,
-          customerOrderId: orderId,
-          orderStatusId: inProgressStatusId
-        })
-      });
+      let updateResponse: Response;
+
+      if (targetOrder.handleOrderId) {
+        updateResponse = await fetch(`/api/HandleOrder/${targetOrder.handleOrderId}`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            orderStatusId: inProgressStatusId
+          })
+        });
+      } else {
+        updateResponse = await fetch('/api/HandleOrder', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title: targetOrder.title ?? `Order ${orderId}`,
+            customerOrderId: orderId,
+            orderStatusId: inProgressStatusId
+          })
+        });
+      }
 
       if (!updateResponse.ok) {
         const errorText = await updateResponse.text().catch(() => '');
@@ -368,6 +410,60 @@ export default function StaffIndex() {
     } catch (error) {
       console.error('Error moving order to In progress:', error);
       alert('Could not move the order to In progress. Please try again.');
+    }
+  };
+
+  const handleCompleteOrder = async (orderId: string) => {
+    const targetOrder = orders.find((order) => order.id === orderId);
+
+    if (!targetOrder) {
+      console.warn('Could not find order in current list', orderId);
+      return;
+    }
+
+    if (!targetOrder.handleOrderId) {
+      console.warn('Missing handle order id for order', orderId);
+      return;
+    }
+
+    try {
+      const finishedStatusId = await getStatusId('finished');
+
+      if (!finishedStatusId) {
+        alert('Unable to locate the "Finished" status. Please ensure it exists in Order Statuses.');
+        return;
+      }
+
+      const updateResponse = await fetch(`/api/HandleOrder/${targetOrder.handleOrderId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          orderStatusId: finishedStatusId
+        })
+      });
+
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text().catch(() => '');
+        throw new Error(errorText || `Failed to update handle order (${updateResponse.status})`);
+      }
+
+      setOrders((prev) => prev.filter((order) => order.id !== orderId));
+      setOrderCounts((prev) => ({
+        new: prev.new,
+        inprogress: Math.max(prev.inprogress - 1, 0),
+        finished: prev.finished + 1
+      }));
+
+      await Promise.all([
+        fetchOrderCounts(),
+        fetchOrders(activeFilter)
+      ]);
+    } catch (error) {
+      console.error('Error moving order to Finished:', error);
+      alert('Could not move the order to Finished. Please try again.');
     }
   };
 
@@ -491,7 +587,7 @@ export default function StaffIndex() {
 
             <OrdersList
               orders={filteredOrders}
-              onConfirm={handleConfirmOrder}
+            onConfirm={activeFilter === 'inprogress' ? handleCompleteOrder : handleConfirmOrder}
               onCancel={handleCancelOrder}
               onOrderClick={handleOrderClick}
             />
