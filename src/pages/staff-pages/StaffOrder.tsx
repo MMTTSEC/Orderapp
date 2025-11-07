@@ -5,6 +5,7 @@ import { checkLoginStatus, type UserData } from '../../auth/authUtils';
 import NotFoundPage from '../general-pages/NotFoundPage';
 import { StaffHeader } from './utils/staffheader';
 import { BottomNav, CircleIcon, ClockIcon, DoorIcon } from './utils/bottomNavMenu';
+import '../../styles/stafforder.css';
 
 StaffOrder.route = {
   path: '/staff/order/:id'
@@ -19,7 +20,6 @@ interface Product {
 interface OrderDetails {
   id: string;
   orderNumber: string;
-  customerName: string;
   placedAt: string;
   products: Product[];
   status: string;
@@ -66,7 +66,6 @@ export default function StaffOrder() {
         orderData = {
           id: data.id,
           orderNumber: data.customerOrder.title,
-          customerName: data.customerOrder.customer?.name || 'Unknown Customer',
           placedAt: data.customerOrder.orderPlacedAt,
           products: data.customerOrder.product || [],
           status: data.orderStatus?.title || 'New'
@@ -76,7 +75,6 @@ export default function StaffOrder() {
         orderData = {
           id: data.id,
           orderNumber: data.title,
-          customerName: data.customer?.name || 'Unknown Customer',
           placedAt: data.orderPlacedAt,
           products: data.product || [],
           status: 'New'
@@ -191,7 +189,7 @@ export default function StaffOrder() {
       return (
         <div>
           <StaffHeader username={userData?.username || "Username"} logoText="Cafe\nLogos" />
-          <div style={{ padding: '20px', textAlign: 'center' }}>
+          <div className="order-not-found">
             <h2>Order not found</h2>
             <button onClick={() => navigate('/staff/')}>Back to Orders</button>
           </div>
@@ -212,7 +210,7 @@ export default function StaffOrder() {
 
           <div className="order-info-card">
             <div className="customer-info">
-              <div className="customer-name">{orderDetails.customerName}</div>
+              <div className="customer-name">Order: {orderDetails.orderNumber}</div>
               <div className="order-time">Placed: {formatTimeAgo(orderDetails.placedAt)}</div>
             </div>
             <button
@@ -227,28 +225,30 @@ export default function StaffOrder() {
           </div>
 
           <div className="products-list">
-            {orderDetails.products.map((product: any, index: number) => {
-              const productId = product.id || product;
-              const productName = product.name || product.title || `Product #${index + 1}`;
-              const isCompleted = productStates[productId] || false;
+            {orderDetails.products
+              .filter((product: any) => product.name || product.title)
+              .map((product: any, index: number) => {
+                const productId = product.id || product;
+                const productName = product.name || product.title;
+                const isCompleted = productStates[productId] || false;
 
-              return (
-                <div key={productId} className="product-item">
-                  <button
-                    className={`product-checkbox ${isCompleted ? 'checked' : ''}`}
-                    onClick={() => handleProductToggle(productId)}
-                    aria-label={`Mark ${productName} as ${isCompleted ? 'incomplete' : 'complete'}`}
-                  >
-                    {isCompleted && (
-                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="white" />
-                      </svg>
-                    )}
-                  </button>
-                  <span className="product-name">{productName}</span>
-                </div>
-              );
-            })}
+                return (
+                  <div key={productId} className="product-item">
+                    <button
+                      className={`product-checkbox ${isCompleted ? 'checked' : ''}`}
+                      onClick={() => handleProductToggle(productId)}
+                      aria-label={`Mark ${productName} as ${isCompleted ? 'incomplete' : 'complete'}`}
+                    >
+                      {isCompleted && (
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="white" />
+                        </svg>
+                      )}
+                    </button>
+                    <span className="product-name">{productName}</span>
+                  </div>
+                );
+              })}
           </div>
 
           <button

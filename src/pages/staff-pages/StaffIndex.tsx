@@ -291,7 +291,7 @@ export default function StaffIndex() {
               orders={filteredOrders}
               onConfirm={handleConfirmOrder}
               onCancel={handleCancelOrder}
-              onOrderClick={handleOrderClick}
+              onOrderClick={activeFilter === 'new' ? undefined : handleOrderClick}
             />
           </main>
 
