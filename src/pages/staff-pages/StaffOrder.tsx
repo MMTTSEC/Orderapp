@@ -1,5 +1,5 @@
 // /orders/:id from our mockup
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { checkLoginStatus, type UserData } from '../../auth/authUtils';
 import NotFoundPage from '../general-pages/NotFoundPage';
@@ -13,8 +13,12 @@ StaffOrder.route = {
 
 interface Product {
   id: string;
-  name: string;
-  completed: boolean;
+  title: string;
+  quantity: number;
+  productId: string;
+  status: boolean;
+  sizeId: string;
+  price: number;
 }
 
 interface OrderDetails {
@@ -23,6 +27,7 @@ interface OrderDetails {
   placedAt: string;
   products: Product[];
   status: string;
+  handleOrderId?: string;
 }
 
 export default function StaffOrder() {
@@ -34,6 +39,61 @@ export default function StaffOrder() {
   const [activeTab, setActiveTab] = useState('orders');
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [productStates, setProductStates] = useState<{ [key: string]: boolean }>({});
+  const [productSizes, setProductSizes] = useState<{ [key: string]: string }>({});
+  const statusMapRef = useRef<Record<string, string>>({});
+  const statusFetchPromiseRef = useRef<Promise<Record<string, string>> | null>(null);
+
+  const fetchStatusMap = async (): Promise<Record<string, string>> => {
+    if (Object.keys(statusMapRef.current).length > 0) {
+      return statusMapRef.current;
+    }
+
+    if (!statusFetchPromiseRef.current) {
+      statusFetchPromiseRef.current = (async () => {
+        const response = await fetch('/api/raw/OrderStatus', {
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => '');
+          throw new Error(errorText || `Failed to fetch order statuses (${response.status})`);
+        }
+
+        const data = await response.json();
+        const map: Record<string, string> = {};
+
+        if (Array.isArray(data)) {
+          data.forEach((status: any) => {
+            const rawTitle = status?.TitlePart?.Title ?? status?.DisplayText ?? status?.title ?? status?.Title ?? status?.displayText;
+            const id = status?.ContentItemId ?? status?.contentItemId ?? status?.id;
+
+            if (typeof rawTitle === 'string' && typeof id === 'string') {
+              map[rawTitle.trim().toLowerCase()] = id;
+            }
+          });
+        }
+
+        statusMapRef.current = map;
+        statusFetchPromiseRef.current = null;
+        return map;
+      })();
+    }
+
+    try {
+      return await statusFetchPromiseRef.current;
+    } finally {
+      statusFetchPromiseRef.current = null;
+    }
+  };
+
+  const getStatusId = async (statusName: string) => {
+    const normalized = statusName.trim().toLowerCase();
+    const map = await fetchStatusMap();
+    return map[normalized];
+  };
 
   const verifyLogin = async () => {
     const { isAuthorized: authorized, userData: data } = await checkLoginStatus();
@@ -42,15 +102,24 @@ export default function StaffOrder() {
     setLoading(false);
   };
 
+  const fetchSizeInfo = async (sizeId: string): Promise<string> => {
+    try {
+      const response = await fetch(`http://localhost:5173/api/Size/${sizeId}`);
+      if (!response.ok) {
+        throw new Error('Size not found');
+      }
+      const data = await response.json();
+      return data.portionSize || data.title || '';
+    } catch (error) {
+      console.error('Error fetching size info:', error);
+      return '';
+    }
+  };
+
   const fetchOrderDetails = async () => {
     try {
-      // First try to fetch from CustomerOrder endpoint
-      let response = await fetch(`/api/CustomerOrder/${id}`);
-
-      if (!response.ok) {
-        // If not found, try HandleOrder endpoint
-        response = await fetch(`/api/expand/HandleOrder/${id}`);
-      }
+      // Fetch order from the CustomerOrder endpoint
+      const response = await fetch(`http://localhost:5173/api/expand/CustomerOrder/${id}`);
 
       if (!response.ok) {
         throw new Error('Order not found');
@@ -58,37 +127,63 @@ export default function StaffOrder() {
 
       const data = await response.json();
 
-      // Map the data to OrderDetails structure
-      let orderData: OrderDetails;
-
-      if (data.customerOrder) {
-        // Data from HandleOrder endpoint
-        orderData = {
-          id: data.id,
-          orderNumber: data.customerOrder.title,
-          placedAt: data.customerOrder.orderPlacedAt,
-          products: data.customerOrder.product || [],
-          status: data.orderStatus?.title || 'New'
-        };
-      } else {
-        // Data from CustomerOrder endpoint
-        orderData = {
-          id: data.id,
-          orderNumber: data.title,
-          placedAt: data.orderPlacedAt,
-          products: data.product || [],
-          status: 'New'
-        };
+      // Also try to fetch the HandleOrder to get handleOrderId
+      let handleOrderId: string | undefined;
+      try {
+        const handleResponse = await fetch('http://localhost:5173/api/expand/HandleOrder');
+        if (handleResponse.ok) {
+          const handleData = await handleResponse.json();
+          if (Array.isArray(handleData)) {
+            const matchingHandle = handleData.find((handle: any) => {
+              const customerId = handle?.customerOrder?.id ?? handle?.customerOrderId;
+              return customerId === data.id;
+            });
+            if (matchingHandle) {
+              handleOrderId = matchingHandle.id ?? matchingHandle.contentItemId;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching handle order:', error);
       }
+
+      // Map the data to OrderDetails structure
+      const orderData: OrderDetails = {
+        id: data.id,
+        orderNumber: data.title,
+        placedAt: data.orderPlacedAt,
+        products: data.product || [],
+        status: 'New',
+        handleOrderId
+      };
 
       setOrderDetails(orderData);
 
-      // Initialize product states
+      // Initialize product states and fetch sizes
       const initialStates: { [key: string]: boolean } = {};
-      orderData.products.forEach((product: any) => {
-        initialStates[product.id || product] = false;
-      });
+      const sizes: { [key: string]: string } = {};
+
+      // Fetch size information for each product and initialize states for each quantity
+      await Promise.all(
+        orderData.products.map(async (product: Product) => {
+          const quantity = product.quantity || 1;
+
+          // Initialize state for each quantity instance
+          for (let i = 0; i < quantity; i++) {
+            const uniqueId = `${product.id}-${i}`;
+            initialStates[uniqueId] = false;
+          }
+
+          // Fetch size info once per product (not per quantity)
+          if (product.sizeId) {
+            const sizeInfo = await fetchSizeInfo(product.sizeId);
+            sizes[product.id] = sizeInfo;
+          }
+        })
+      );
+
       setProductStates(initialStates);
+      setProductSizes(sizes);
 
     } catch (error) {
       console.error('Error fetching order details:', error);
@@ -103,11 +198,48 @@ export default function StaffOrder() {
     }));
   };
 
-  const handleCompleteOrder = () => {
-    console.log('Completing order:', id);
-    // Add your complete order logic here
-    // Navigate back to orders list
-    navigate('/staff/');
+  const handleCompleteOrder = async () => {
+    if (!orderDetails) {
+      console.warn('No order details available');
+      return;
+    }
+
+    if (!orderDetails.handleOrderId) {
+      console.warn('Missing handle order id for order', id);
+      alert('This order has not been started yet. Please start it from the orders list first.');
+      return;
+    }
+
+    try {
+      const finishedStatusId = await getStatusId('finished');
+
+      if (!finishedStatusId) {
+        alert('Unable to locate the "Finished" status. Please ensure it exists in Order Statuses.');
+        return;
+      }
+
+      const updateResponse = await fetch(`/api/HandleOrder/${orderDetails.handleOrderId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          orderStatusId: finishedStatusId
+        })
+      });
+
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text().catch(() => '');
+        throw new Error(errorText || `Failed to update handle order (${updateResponse.status})`);
+      }
+
+      // Navigate back to orders list after successful completion
+      navigate('/staff/');
+    } catch (error) {
+      console.error('Error completing order:', error);
+      alert('Could not complete the order. Please try again.');
+    }
   };
 
   const handleCancelOrder = () => {
@@ -198,12 +330,31 @@ export default function StaffOrder() {
       );
     }
 
+    // Check if all products are completed (accounting for quantities)
+    const allProductsCompleted = orderDetails.products.length > 0 &&
+      orderDetails.products.every((product: Product) => {
+        const quantity = product.quantity || 1;
+        // Check if all instances of this product are completed
+        for (let i = 0; i < quantity; i++) {
+          const uniqueId = `${product.id}-${i}`;
+          if (!productStates[uniqueId]) {
+            return false;
+          }
+        }
+        return true;
+      });
+
     return (
       <div className="staff-order-container">
         <StaffHeader username={userData?.username || "Username"} logoText="Cafe\nLogos" />
 
         <main className="staff-order-main">
           <div className="order-header">
+            <button className="back-button" onClick={() => navigate('/staff/')} aria-label="Go back to orders list">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" fill="currentColor" />
+              </svg>
+            </button>
             <h1>Order Details</h1>
             <h2 className="order-number">#{orderDetails.orderNumber}</h2>
           </div>
@@ -225,18 +376,21 @@ export default function StaffOrder() {
           </div>
 
           <div className="products-list">
-            {orderDetails.products
-              .filter((product: any) => product.name || product.title)
-              .map((product: any, index: number) => {
-                const productId = product.id || product;
-                const productName = product.name || product.title;
-                const isCompleted = productStates[productId] || false;
+            {orderDetails.products.flatMap((product: Product) => {
+              const productName = product.title;
+              const portionSize = productSizes[product.id] || '';
+              const quantity = product.quantity || 1;
+
+              // Create an array of items based on quantity
+              return Array.from({ length: quantity }, (_, index) => {
+                const uniqueId = `${product.id}-${index}`;
+                const isCompleted = productStates[uniqueId] || false;
 
                 return (
-                  <div key={productId} className="product-item">
+                  <div key={uniqueId} className="product-item">
                     <button
                       className={`product-checkbox ${isCompleted ? 'checked' : ''}`}
-                      onClick={() => handleProductToggle(productId)}
+                      onClick={() => handleProductToggle(uniqueId)}
                       aria-label={`Mark ${productName} as ${isCompleted ? 'incomplete' : 'complete'}`}
                     >
                       {isCompleted && (
@@ -246,14 +400,17 @@ export default function StaffOrder() {
                       )}
                     </button>
                     <span className="product-name">{productName}</span>
+                    {portionSize && <span className="product-size"> - {portionSize}</span>}
                   </div>
                 );
-              })}
+              });
+            })}
           </div>
 
           <button
             className="complete-button"
             onClick={handleCompleteOrder}
+            disabled={!allProductsCompleted}
           >
             Completed
           </button>
