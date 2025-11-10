@@ -21,20 +21,22 @@
 }
 
 .brand-logo {
-    width: 120px;
-    height: 120px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
-    background-color: var(--color-primary);
-    border: 8px solid var(--color-white);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-white);
-    font-size: var(--font-size-text);
-    font-weight: 600;
-    margin-bottom: var(--spacing-big);
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: var(--spacing-mid);
+    overflow: hidden;
+}
+
+.brand-logo img {
+    width: 135%;
+    height: 135%;
+    object-fit: contain;
+    padding: 6px;
+    margin: -4px;
 }
 
 .welcome-title {
@@ -100,7 +102,7 @@
     font-weight: 600;
     font-family: var(--font-primary);
     cursor: pointer;
-    margin-top: var(--spacing-big);
+    margin-top: var(--spacing-mid);
     transition: background-color 0.3s, transform 0.1s;
 }
 
@@ -129,10 +131,10 @@
     }
 
     .brand-logo {
-        width: 140px;
-        height: 140px;
+        width: 250px;
+        height: 250px;
         font-size: 16px;
-        margin-bottom: 50px;
+        margin-bottom: var(--spacing-mid);
     }
 
     .welcome-title {
@@ -162,7 +164,7 @@
     .login-button {
         padding: 20px 25px;
         font-size: 22px;
-        margin-top: 50px;
+        margin-top: var(--spacing-mid);
     }
 }
 
@@ -173,8 +175,8 @@
     }
 
     .brand-logo {
-        width: 150px;
-        height: 150px;
+        width: 250px;
+        height: 250px;
     }
 
     .welcome-title {

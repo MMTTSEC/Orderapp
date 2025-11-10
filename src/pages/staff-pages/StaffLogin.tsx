@@ -2,6 +2,7 @@ import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { checkLoginStatus } from '../../auth/authUtils';
 import '../../styles/stafflogin.css';
+import burgerLogo from '../../assets/logo.png';
 
 StaffLogin.route = {
   path: '/staff/login'
@@ -79,19 +80,19 @@ export default function StaffLogin() {
     <div className="staff-login-container">
       <form className="staff-login-form" onSubmit={handleSubmit}>
         <div className="brand-logo">
-          Brand<br />Logo
+          <img src={burgerLogo} alt="Burger Bliss Logo" />
         </div>
 
-        <h1 className="welcome-title">Welcome Back!</h1>
-        <p className="welcome-subtitle">Log in to manage your orders</p>
+        <h1 className="welcome-title">Välkommen Tillbaka!</h1>
+        <p className="welcome-subtitle">Logga in för att hantera beställningar</p>
 
         <div className="form-group">
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">Användarnamn</label>
           <input
             id="username"
             type="text"
             className="form-input"
-            placeholder="Enter your username"
+            placeholder="Ange ditt användarnamn"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -99,12 +100,12 @@ export default function StaffLogin() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="password">Password</label>
+          <label htmlFor="password">Lösenord</label>
           <input
             id="password"
             type="password"
             className="form-input"
-            placeholder="Enter your password"
+            placeholder="Ange ditt lösenord"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -112,7 +113,7 @@ export default function StaffLogin() {
         </div>
 
         <button type="submit" className="login-button">
-          Login
+          Logga in
         </button>
       </form>
     </div>

@@ -350,7 +350,7 @@ export default function StaffIndex() {
     const targetOrder = orders.find((order) => order.id === orderId);
 
     if (!targetOrder) {
-      console.warn('Could not find order in current list', orderId);
+      console.warn('Kunde inte hitta beställningen i den nuvarande listan.', orderId);
       return;
     }
 
@@ -519,14 +519,14 @@ export default function StaffIndex() {
   const navItems = [
     {
       id: 'orders',
-      label: 'orders',
+      label: 'Beställningar', // was 'orders'
       icon: <CircleIcon />,
       onClick: () => handleNavigation('orders'),
       isActive: activeTab === 'orders',
     },
     {
       id: 'signout',
-      label: 'sign out',
+      label: 'Logga ut', // was 'sign out'
       icon: <DoorIcon />,
       onClick: () => handleNavigation('signout'),
       isActive: activeTab === 'signout',
@@ -537,21 +537,21 @@ export default function StaffIndex() {
   const filterButtons = [
     {
       id: 'new',
-      label: 'New',
+      label: 'Nya', // was 'New'
       count: orderCounts.new,
       isActive: activeFilter === 'new',
       onClick: () => handleFilterChange('new'),
     },
     {
       id: 'inprogress',
-      label: 'In progress',
+      label: 'Pågående', // was 'In progress'
       count: orderCounts.inprogress,
       isActive: activeFilter === 'inprogress',
       onClick: () => handleFilterChange('inprogress'),
     },
     {
       id: 'finished',
-      label: 'finished',
+      label: 'Avslutade', // was 'finished'
       count: orderCounts.finished,
       isActive: activeFilter === 'finished',
       onClick: () => handleFilterChange('finished'),
@@ -568,19 +568,19 @@ export default function StaffIndex() {
           <StaffHeader username={userData?.username ?? 'Username'} logoText="Cafe\nLogos" />
 
           <main className="staff-main">
-            <h1 className="staff-page-headers">Order</h1>
+            <h1 className="staff-page-headers">Beställningar</h1>
 
             <FilterButtons filters={filterButtons} />
 
             <SearchBar
               value={searchQuery}
               onChange={setSearchQuery}
-              placeholder="Search orders..."
+              placeholder="Sök beställningar..."
             />
 
             <OrdersList
               orders={filteredOrders}
-            onConfirm={activeFilter === 'inprogress' ? handleCompleteOrder : handleConfirmOrder}
+              onConfirm={activeFilter === 'inprogress' ? handleCompleteOrder : handleConfirmOrder}
               onCancel={handleCancelOrder}
               onOrderClick={activeFilter === 'new' ? undefined : handleOrderClick}
             />
