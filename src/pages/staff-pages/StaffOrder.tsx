@@ -104,7 +104,7 @@ export default function StaffOrder() {
 
   const fetchSizeInfo = async (sizeId: string): Promise<string> => {
     try {
-      const response = await fetch(`http://localhost:5173/api/Size/${sizeId}`);
+      const response = await fetch(`/api/Size/${sizeId}`);
       if (!response.ok) {
         throw new Error('Size not found');
       }
@@ -119,7 +119,7 @@ export default function StaffOrder() {
   const fetchOrderDetails = async () => {
     try {
       // Fetch order from the CustomerOrder endpoint
-      const response = await fetch(`http://localhost:5173/api/expand/CustomerOrder/${id}`);
+      const response = await fetch(`/api/expand/CustomerOrder/${id}`);
 
       if (!response.ok) {
         throw new Error('Order not found');
@@ -131,7 +131,7 @@ export default function StaffOrder() {
       let handleOrderId: string | undefined;
       let orderStatus = 'New';
       try {
-        const handleResponse = await fetch('http://localhost:5173/api/expand/HandleOrder');
+        const handleResponse = await fetch('/api/expand/HandleOrder');
         if (handleResponse.ok) {
           const handleData = await handleResponse.json();
           if (Array.isArray(handleData)) {
@@ -172,7 +172,7 @@ export default function StaffOrder() {
           // If item is a string, it's just an ID - fetch the full product
           if (typeof item === 'string') {
             try {
-              const productResponse = await fetch(`http://localhost:5173/api/expand/Product/${item}`);
+              const productResponse = await fetch(`/api/expand/Product/${item}`);
               if (!productResponse.ok) {
                 console.error(`Failed to fetch product ${item}`);
                 return null;
