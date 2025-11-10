@@ -8,7 +8,7 @@ OrderSelection.route = {
   path: '/order-selection'
 };
 
-type ActiveTab = "meal" | "food" | "drink" | "extra";
+type ActiveTab = "food" | "drink" | "extra";
 
 type SizeOption = string;
 
@@ -55,9 +55,8 @@ type ProductQuantityResponse = {
 };
 
 export default function OrderSelection() {
-   const [activeTab, setActiveTab] = useState<ActiveTab>("meal");
+   const [activeTab, setActiveTab] = useState<ActiveTab>("food");
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [mealItems, setMealItems] = useState<Item[]>([]);
   const [foodItems, setFoodItems] = useState<Item[]>([]);
   const [drinkItems, setDrinkItems] = useState<Item[]>([]);
   const [extraItems, setExtraItems] = useState<Item[]>([]);
@@ -88,7 +87,6 @@ export default function OrderSelection() {
 
     const mapCategoryToTab = (category?: string): ActiveTab => {
       const normalized = category?.toLowerCase() ?? "";
-      if (["meal", "meals", "combo", "combos"].includes(normalized)) return "meal";
       if (["drink", "drinks", "beverage", "beverages"].includes(normalized)) return "drink";
       if (["side", "sides", "extra", "extras", "snack", "snacks"].includes(normalized)) return "extra";
       return "food";
@@ -277,7 +275,6 @@ export default function OrderSelection() {
           return item;
         });
 
-        const nextMeals: Item[] = [];
         const nextFoods: Item[] = [];
         const nextDrinks: Item[] = [];
         const nextExtras: Item[] = [];
@@ -285,9 +282,6 @@ export default function OrderSelection() {
         baseItems.forEach(item => {
           const bucket = mapCategoryToTab(item.category);
           switch (bucket) {
-            case "meal":
-              nextMeals.push(item);
-              break;
             case "drink":
               nextDrinks.push(item);
               break;
@@ -301,7 +295,6 @@ export default function OrderSelection() {
           }
         });
 
-        setMealItems(nextMeals);
         setFoodItems(nextFoods);
         setDrinkItems(nextDrinks);
         setExtraItems(nextExtras);
@@ -322,9 +315,8 @@ export default function OrderSelection() {
   }, []);
 
   useEffect(() => {
-    const tabs: ActiveTab[] = ["meal", "food", "drink", "extra"];
+    const tabs: ActiveTab[] = ["food", "drink", "extra"];
     const lookup: Record<ActiveTab, Item[]> = {
-      meal: mealItems,
       food: foodItems,
       drink: drinkItems,
       extra: extraItems
@@ -333,12 +325,10 @@ export default function OrderSelection() {
     if (firstWithItems && lookup[activeTab].length === 0 && activeTab !== firstWithItems) {
       setActiveTab(firstWithItems);
     }
-  }, [activeTab, mealItems, foodItems, drinkItems, extraItems]);
+  }, [activeTab, foodItems, drinkItems, extraItems]);
 
   const currentItems = useMemo(() => {
     switch (activeTab) {
-      case "meal":
-        return mealItems;
       case "food":
         return foodItems;
       case "drink":
@@ -348,7 +338,7 @@ export default function OrderSelection() {
       default:
         return [];
     }
-  }, [activeTab, mealItems, foodItems, drinkItems, extraItems]);
+  }, [activeTab, foodItems, drinkItems, extraItems]);
 
   const handleAmountChange = (id: string, delta: number, size?: SizeOption) => {
     const updateItemInArray = (items: Item[], setItems: React.Dispatch<React.SetStateAction<Item[]>>) => {
@@ -381,9 +371,7 @@ export default function OrderSelection() {
       }
     };
 
-    if (mealItems.find(i => i.id === id)) {
-      updateItemInArray(mealItems, setMealItems);
-    } else if (foodItems.find(i => i.id === id)) {
+    if (foodItems.find(i => i.id === id)) {
       updateItemInArray(foodItems, setFoodItems);
     } else if (drinkItems.find(i => i.id === id)) {
       updateItemInArray(drinkItems, setDrinkItems);
@@ -407,9 +395,7 @@ export default function OrderSelection() {
       ));
     };
 
-    if (mealItems.find(i => i.id === id)) {
-      updateItemInArray(setMealItems);
-    } else if (foodItems.find(i => i.id === id)) {
+    if (foodItems.find(i => i.id === id)) {
       updateItemInArray(setFoodItems);
     } else if (drinkItems.find(i => i.id === id)) {
       updateItemInArray(setDrinkItems);
@@ -438,9 +424,7 @@ export default function OrderSelection() {
       }));
     };
 
-    if (mealItems.find(i => i.id === id)) {
-      updateItemInArray(mealItems, setMealItems);
-    } else if (foodItems.find(i => i.id === id)) {
+    if (foodItems.find(i => i.id === id)) {
       updateItemInArray(foodItems, setFoodItems);
     } else if (drinkItems.find(i => i.id === id)) {
       updateItemInArray(drinkItems, setDrinkItems);
@@ -451,7 +435,7 @@ export default function OrderSelection() {
 
   // Modify getAllCartItems to handle sized items
   const getAllCartItems = () => {
-    const allItems = [...mealItems, ...foodItems, ...drinkItems, ...extraItems];
+    const allItems = [...foodItems, ...drinkItems, ...extraItems];
     
     return allItems.reduce<Item[]>((acc, item) => {
       if (item.sizeAmounts) {
@@ -477,17 +461,10 @@ export default function OrderSelection() {
     <div className="main-container order-selection-page">
       <nav className="tab-menu">
         <button
-          className={`tab-item ${activeTab === "meal" ? "active" : ""}`}
-          onClick={() => setActiveTab("meal")}
-        >
-          <i className="bi bi-fork-knife"></i> Mål
-        </button>
-        
-        <button
           className={`tab-item ${activeTab === "food" ? "active" : ""}`}
           onClick={() => setActiveTab("food")}
         >
-          <i className="bi bi-stack"></i> Burgare
+          <i className="bi bi-stack"></i> Mat
         </button>
 
         <button
