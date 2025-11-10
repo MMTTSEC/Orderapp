@@ -7,6 +7,7 @@ public class OrderMonitorService : BackgroundService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly OrderSseHub _hub;
     private IReadOnlyDictionary<string, string> _lastStatusByOrder = new Dictionary<string, string>();
+    private ISet<string> _lastPendingCustomerIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     public OrderMonitorService(ILogger<OrderMonitorService> logger, OrderSseHub hub)
     {
@@ -22,12 +23,14 @@ public class OrderMonitorService : BackgroundService
             try
             {
                 var snapshot = await FetchOrdersSnapshot(stoppingToken);
-                var currentStatus = BuildStatusLookup(snapshot);
+                var currentStatus = BuildStatusLookup(snapshot.Orders);
+                var pendingChanged = !SetsEqual(_lastPendingCustomerIds, snapshot.PendingCustomerIds);
 
-                if (!DictionariesEqual(_lastStatusByOrder, currentStatus))
+                if (!DictionariesEqual(_lastStatusByOrder, currentStatus) || pendingChanged)
                 {
-                    _hub.BroadcastSnapshot(snapshot);
+                    _hub.BroadcastSnapshot(snapshot.Orders, snapshot.PendingCustomerIds);
                     _lastStatusByOrder = currentStatus;
+                    _lastPendingCustomerIds = new HashSet<string>(snapshot.PendingCustomerIds, StringComparer.OrdinalIgnoreCase);
                 }
             }
             catch (Exception ex)
@@ -49,7 +52,21 @@ public class OrderMonitorService : BackgroundService
         return true;
     }
 
-    private async Task<List<OrderDto>> FetchOrdersSnapshot(CancellationToken ct)
+    private static bool SetsEqual(IEnumerable<string> a, IEnumerable<string> b)
+    {
+        var setA = new HashSet<string>(a, StringComparer.OrdinalIgnoreCase);
+        var setB = new HashSet<string>(b, StringComparer.OrdinalIgnoreCase);
+        if (setA.Count != setB.Count) return false;
+        foreach (var item in setA)
+        {
+            if (!setB.Contains(item)) return false;
+        }
+        return true;
+    }
+
+    private sealed record OrdersSnapshot(List<OrderDto> Orders, IReadOnlyCollection<string> PendingCustomerIds);
+
+    private async Task<OrdersSnapshot> FetchOrdersSnapshot(CancellationToken ct)
     {
         var http = _httpClientFactory.CreateClient();
         http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -74,6 +91,7 @@ public class OrderMonitorService : BackgroundService
             .ToDictionary(x => x.id!, x => x.title!);
 
         var orders = new List<OrderDto>();
+        var handledCustomerIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var ho in hoList)
         {
             var handleOrder = ho.TryGetProperty("HandleOrder", out var hoPart) ? hoPart : default;
@@ -96,12 +114,50 @@ public class OrderMonitorService : BackgroundService
 
             if (!string.IsNullOrWhiteSpace(number) && !string.IsNullOrWhiteSpace(status))
             {
+                if (!string.IsNullOrWhiteSpace(coId))
+                {
+                    handledCustomerIds.Add(coId);
+                }
                 orders.Add(new OrderDto(id: number!, number: number!, status: status!));
             }
         }
 
-        orders = orders.Where(o => !string.Equals(o.status, "Pending", StringComparison.OrdinalIgnoreCase)).ToList();
-        return orders;
+        var seenKeys = new HashSet<string>(orders.SelectMany(o => new[] { o.id, o.number }).Where(x => !string.IsNullOrWhiteSpace(x)), StringComparer.OrdinalIgnoreCase);
+        var pendingCustomerIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var co in coList)
+        {
+            if (!co.TryGetProperty("ContentItemId", out var coIdProp)) continue;
+            var coId = coIdProp.GetString();
+            if (string.IsNullOrWhiteSpace(coId)) continue;
+            if (handledCustomerIds.Contains(coId)) continue;
+
+            pendingCustomerIds.Add(coId);
+
+            if (seenKeys.Contains(coId))
+            {
+                continue;
+            }
+
+            string? title = null;
+            if (co.TryGetProperty("TitlePart", out var tp) && tp.ValueKind == JsonValueKind.Object && tp.TryGetProperty("Title", out var tProp))
+            {
+                title = tProp.GetString();
+            }
+            if (string.IsNullOrWhiteSpace(title) && co.TryGetProperty("DisplayText", out var dtProp))
+            {
+                title = dtProp.GetString();
+            }
+
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                orders.Add(new OrderDto(id: coId!, number: title!, status: "Pending"));
+                seenKeys.Add(coId!);
+                seenKeys.Add(title!);
+            }
+        }
+
+        return new OrdersSnapshot(orders, pendingCustomerIds);
     }
 
     private static IReadOnlyDictionary<string, string> BuildStatusLookup(IEnumerable<OrderDto> snapshot)

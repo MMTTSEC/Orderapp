@@ -144,6 +144,9 @@ export default function OrderDisplay() {
       } else if (prevStatus !== status) {
         const from = normalizeStatus(prevStatus);
         const to = normalizeStatus(status);
+        if (from === 'pending' && to === 'in_progress') {
+          newEntered.add(num);
+        }
         if (from === 'in_progress' && to === 'finished') {
           // play notification sound
           try { soundRef.current && soundRef.current.play().catch(() => {}); } catch {}
