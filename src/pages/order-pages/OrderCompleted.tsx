@@ -1,12 +1,14 @@
 // Order 7 from our mockup
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import '../../styles/orderCompleted.css';
 OrderCompleted.route = {
   path: '/order-completed'
 };
 
 export default function OrderCompleted() {
-  const orderNumber = 3112;
+  const location = useLocation();
+  const orderNumber = (location.state as any)?.orderNumber || 'N/A';
   const [secondsLeft, setSecondsLeft] = useState(10);
 
   useEffect(() => {
