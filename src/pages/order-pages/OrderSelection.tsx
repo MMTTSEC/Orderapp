@@ -1,5 +1,5 @@
 // Order 2-3 from our mockup
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ShoppingCart from '../../components/ShoppingCart';
 import OrderConfirmation from '../../components/OrderConfirmation';
 import "../../styles/orderSelection.css";
@@ -8,174 +8,349 @@ OrderSelection.route = {
   path: '/order-selection'
 };
 
-type SizeOption = "Liten" | "Mellan" | "Stor";
+type ActiveTab = "meal" | "food" | "drink" | "extra";
+
+type SizeOption = string;
 
 type SizePrice = {
   size: SizeOption;
   price: number;
+  productId?: string;
+  productQuantityId?: string;
 };
 
 type Item = {
-  id: number;
+  id: string;
   name: string;
   image: string;
   amount: number;
   price?: number;
   sizes?: SizePrice[];
   selectedSize?: SizeOption;
-  sizeAmounts?: Record<SizeOption, number>; // Add this to track amounts per size
+  sizeAmounts?: Record<string, number>;
+  category?: string;
+};
+
+type ProductQuantityResponse = {
+  id: string;
+  title: string;
+  quantity?: number;
+  price?: number;
+  status?: boolean;
+  product?: {
+    id?: string;
+    title?: string;
+    category?: string;
+    image?: {
+      paths?: string[];
+      mediaTexts?: string[];
+    };
+    price?: unknown;
+  };
+  size?: {
+    id?: string;
+    title?: string;
+    portionSize?: string;
+  };
 };
 
 export default function OrderSelection() {
-   const [activeTab, setActiveTab] = useState<"meal" | "food" | "drink" | "extra">("meal");
+   const [activeTab, setActiveTab] = useState<ActiveTab>("meal");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [mealItems, setMealItems] = useState<Item[]>([]);
+  const [foodItems, setFoodItems] = useState<Item[]>([]);
+  const [drinkItems, setDrinkItems] = useState<Item[]>([]);
+  const [extraItems, setExtraItems] = useState<Item[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState<boolean>(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  // Example data
-const [mealItems, setMealItems] = useState<Item[]>([
-    { id: 1, name: "Mål 1", image: "/", amount: 0, price: 100 },
-    { id: 2, name: "Mål 2", image: "/", amount: 0, price: 115 },
-    { id: 3, name: "Mål 3", image: "/", amount: 0, price: 105 }
-  ]);
+  useEffect(() => {
+    let isMounted = true;
 
-  const [foodItems, setFoodItems] = useState<Item[]>([
-    { id: 4, name: "Burgare 1", image: "/", amount: 0, price: 80 },
-    { id: 5, name: "Burgare 2", image: "/", amount: 0, price: 80 },
-    { id: 6, name: "Burgare 3", image: "/", amount: 0, price: 80 },
-    { id: 7, name: "Burgare 4", image: "/", amount: 0, price: 70 },
-    { id: 8, name: "Burgare 5", image: "/", amount: 0, price: 70 },
-    { id: 9, name: "Burgare 6", image: "/", amount: 0, price: 35 },
-    { id: 10, name: "Burgare 7", image: "/", amount: 0, price: 30 },
-    { id: 11, name: "Burgare 8", image: "/", amount: 0, price: 24 },
-    { id: 12, name: "Burgare 9", image: "/", amount: 0, price: 24 }
-  ]);
+    const sizeSynonyms: Record<string, string> = {
+      stor: "Large",
+      large: "Large",
+      liten: "Small",
+      small: "Small",
+      mellan: "Medium",
+      medium: "Medium",
+      standard: "Standard",
+      "no size": "Standard"
+    };
 
-  const [drinkItems, setDrinkItems] = useState<Item[]>([
-    { 
-      id: 13, 
-      name: "Cola", 
-      image: "/", 
-      amount: 0, 
-      sizes: [
-        { size: "Liten", price: 20 },
-        { size: "Mellan", price: 25 },
-        { size: "Stor", price: 30 }
-      ], 
-      selectedSize: "Mellan",
-      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
-    },
-    { 
-      id: 14, 
-      name: "Cola Zero", 
-      image: "/", 
-      amount: 0, 
-      sizes: [
-        { size: "Liten", price: 20 },
-        { size: "Mellan", price: 25 },
-        { size: "Stor", price: 30 }
-      ], 
-      selectedSize: "Mellan",
-      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
-    },
-    { 
-      id: 15, 
-      name: "Fanta", 
-      image: "/", 
-      amount: 0, 
-      sizes: [
-        { size: "Liten", price: 20 },
-        { size: "Mellan", price: 25 },
-        { size: "Stor", price: 30 }
-      ], 
-      selectedSize: "Mellan",
-      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
-    },
-    { 
-      id: 16, 
-      name: "Fanta Zero", 
-      image: "/", 
-      amount: 0, 
-      sizes: [
-        { size: "Liten", price: 20 },
-        { size: "Mellan", price: 25 },
-        { size: "Stor", price: 30 }
-      ], 
-      selectedSize: "Mellan",
-      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
-    },
-    { 
-      id: 17, 
-      name: "Sprite", 
-      image: "/", 
-      amount: 0, 
-      sizes: [
-        { size: "Liten", price: 20 },
-        { size: "Mellan", price: 25 },
-        { size: "Stor", price: 30 }
-      ], 
-      selectedSize: "Mellan",
-      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
-    },
-    { 
-      id: 18, 
-      name: "Sprite Zero", 
-      image: "/", 
-      amount: 0, 
-      sizes: [
-        { size: "Liten", price: 20 },
-        { size: "Mellan", price: 25 },
-        { size: "Stor", price: 30 }
-      ], 
-      selectedSize: "Mellan",
-      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
-    },
-    { 
-      id: 19, 
-      name: "Vatten", 
-      image: "/", 
-      amount: 0, 
-      sizes: [
-        { size: "Liten", price: 20 },
-        { size: "Mellan", price: 25 },
-        { size: "Stor", price: 30 }
-      ], 
-      selectedSize: "Mellan",
-      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    const normalizeSizeName = (value?: string | null) => {
+      if (!value) return undefined;
+      const trimmed = value.trim();
+      if (!trimmed) return undefined;
+      const lower = trimmed.toLowerCase();
+      return sizeSynonyms[lower] ?? trimmed;
+    };
+
+    const mapCategoryToTab = (category?: string): ActiveTab => {
+      const normalized = category?.toLowerCase() ?? "";
+      if (["meal", "meals", "combo", "combos"].includes(normalized)) return "meal";
+      if (["drink", "drinks", "beverage", "beverages"].includes(normalized)) return "drink";
+      if (["side", "sides", "extra", "extras", "snack", "snacks"].includes(normalized)) return "extra";
+      return "food";
+    };
+
+    const toSlug = (value: string) => value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'item';
+
+    const coercePrice = (value: unknown): number => {
+      if (typeof value === 'number' && Number.isFinite(value)) return value;
+      if (value && typeof value === 'object') {
+        const possible = (value as any).value ?? (value as any).Value;
+        if (typeof possible === 'number' && Number.isFinite(possible)) return possible;
+      }
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
+    const getImageUrl = (paths?: string[]) => {
+      if (!paths || paths.length === 0) return "/";
+      const path = paths[0];
+      if (!path) return "/";
+      if (path.startsWith('http://') || path.startsWith('https://')) return path;
+      if (path.startsWith('/')) return path;
+      return `/media/${path}`;
+    };
+
+    const extractBaseNameAndSize = (title: string, sizeTitle?: string | null) => {
+      let baseName = title?.trim() ?? '';
+      let sizeLabel = normalizeSizeName(sizeTitle);
+
+      const attemptSuffixRemoval = (candidate: string) => {
+        const normalized = normalizeSizeName(candidate);
+        if (normalized && normalized !== "Standard") {
+          sizeLabel = normalized;
+          baseName = baseName.replace(new RegExp(`\\s+${candidate}$`, 'i'), '').trim();
+        }
+      };
+
+      if (!sizeLabel || sizeLabel === "Standard") {
+        const parts = baseName.split(/\s+/);
+        if (parts.length > 1) {
+          attemptSuffixRemoval(parts[parts.length - 1]);
+        }
+      }
+
+      if (!baseName) baseName = title;
+      if (sizeLabel === "Standard") sizeLabel = undefined;
+
+      return { baseName, sizeLabel };
+    };
+
+    const ensureItem = (map: Map<string, Item>, key: string, baseName: string, category?: string) => {
+      if (!map.has(key)) {
+        map.set(key, {
+          id: key,
+          name: baseName,
+          image: "/",
+          amount: 0,
+          price: 0,
+          sizes: undefined,
+          selectedSize: undefined,
+          sizeAmounts: undefined,
+          category
+        });
+      }
+      const item = map.get(key)!;
+      item.name = baseName;
+      if (category) item.category = category;
+      return item;
+    };
+
+    const addSizeOption = (item: Item, sizeLabel: string | undefined, price: number, productId?: string, productQuantityId?: string) => {
+      if (!sizeLabel) {
+        item.price = price;
+        item.sizes = undefined;
+        item.sizeAmounts = undefined;
+        item.selectedSize = undefined;
+        return;
+      }
+
+      const sizes = item.sizes ?? [];
+      const existingSize = sizes.find(s => s.size === sizeLabel);
+      if (existingSize) {
+        existingSize.price = price;
+        existingSize.productId = existingSize.productId ?? productId;
+        existingSize.productQuantityId = existingSize.productQuantityId ?? productQuantityId;
+      } else {
+        sizes.push({
+          size: sizeLabel,
+          price,
+          productId,
+          productQuantityId
+        });
+      }
+      item.sizes = sizes;
+
+      const sizeAmounts = item.sizeAmounts ?? {};
+      if (sizeAmounts[sizeLabel] === undefined) {
+        sizeAmounts[sizeLabel] = 0;
+      }
+      item.sizeAmounts = sizeAmounts;
+      if (!item.selectedSize) {
+        item.selectedSize = sizeLabel;
+      }
+      item.price = undefined;
+    };
+
+    async function fetchProducts() {
+      try {
+        setLoadingProducts(true);
+        setFetchError(null);
+
+        const [productRes, quantityRes] = await Promise.all([
+          fetch('/api/expand/Product', { headers: { 'Accept': 'application/json' } }),
+          fetch('/api/expand/ProductQuantity', { headers: { 'Accept': 'application/json' } })
+        ]);
+
+        if (!productRes.ok || !quantityRes.ok) {
+          throw new Error(`HTTP ${productRes.status}/${quantityRes.status}`);
+        }
+
+        const products: Array<{
+          id: string;
+          title?: string;
+          category?: string;
+          price?: unknown;
+          image?: { paths?: string[]; mediaTexts?: string[] };
+          size?: { id?: string; title?: string; portionSize?: string };
+        }> = await productRes.json();
+
+        const quantities: ProductQuantityResponse[] = await quantityRes.json();
+
+        const itemsMap = new Map<string, Item>();
+
+        products.forEach(prod => {
+          if (!prod.id) return;
+          const { baseName, sizeLabel } = extractBaseNameAndSize(prod.title ?? 'Produkt', prod.size?.title ?? prod.size?.portionSize);
+          const category = prod.category ?? undefined;
+          const key = `${toSlug(baseName)}-${toSlug(category ?? 'misc')}`;
+          const item = ensureItem(itemsMap, key, baseName, category);
+
+          const imgUrl = getImageUrl(prod.image?.paths);
+          if (imgUrl !== "/" && (item.image === "/" || !item.image)) {
+            item.image = imgUrl;
+          }
+
+          const price = coercePrice(prod.price);
+          addSizeOption(item, sizeLabel, price, prod.id, undefined);
+        });
+
+        quantities.forEach(entry => {
+          const productTitle = entry.product?.title ?? entry.title ?? 'Produkt';
+          const category = entry.product?.category ?? undefined;
+          const { baseName, sizeLabel } = extractBaseNameAndSize(productTitle, entry.size?.title ?? entry.size?.portionSize);
+          const key = `${toSlug(baseName)}-${toSlug(category ?? 'misc')}`;
+          const item = ensureItem(itemsMap, key, baseName, category);
+
+          const imgUrl = getImageUrl(entry.product?.image?.paths);
+          if (imgUrl !== "/" && (item.image === "/" || !item.image)) {
+            item.image = imgUrl;
+          }
+
+          const price = coercePrice(entry.price ?? entry.product?.price);
+          addSizeOption(item, sizeLabel, price, entry.product?.id, entry.id);
+        });
+
+        if (!isMounted) return;
+
+        const baseItems = Array.from(itemsMap.values()).map(item => {
+          if (item.sizes && item.sizes.length > 0) {
+            const sizeAmounts = item.sizeAmounts ?? {};
+            item.sizes.forEach(size => {
+              if (sizeAmounts[size.size] === undefined) sizeAmounts[size.size] = 0;
+            });
+            item.sizeAmounts = sizeAmounts;
+            item.selectedSize = item.selectedSize ?? item.sizes[0].size;
+            item.price = undefined;
+          } else {
+            item.price = item.price ?? 0;
+          }
+          return item;
+        });
+
+        const nextMeals: Item[] = [];
+        const nextFoods: Item[] = [];
+        const nextDrinks: Item[] = [];
+        const nextExtras: Item[] = [];
+
+        baseItems.forEach(item => {
+          const bucket = mapCategoryToTab(item.category);
+          switch (bucket) {
+            case "meal":
+              nextMeals.push(item);
+              break;
+            case "drink":
+              nextDrinks.push(item);
+              break;
+            case "extra":
+              nextExtras.push(item);
+              break;
+            case "food":
+            default:
+              nextFoods.push(item);
+              break;
+          }
+        });
+
+        setMealItems(nextMeals);
+        setFoodItems(nextFoods);
+        setDrinkItems(nextDrinks);
+        setExtraItems(nextExtras);
+      } catch (err) {
+        if (!isMounted) return;
+        console.error('Failed to fetch product data', err);
+        setFetchError('Kunde inte hämta produkter just nu.');
+      } finally {
+        if (isMounted) setLoadingProducts(false);
+      }
     }
-  ]);
 
-  const [extraItems, setExtraItems] = useState<Item[]>([
-    { 
-      id: 20, 
-      name: "Pommes", 
-      image: "/", 
-      amount: 0, 
-      sizes: [
-        { size: "Liten", price: 15 },
-        { size: "Mellan", price: 25 },
-        { size: "Stor", price: 35 }
-      ], 
-      selectedSize: "Mellan",
-      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
-    },
-    { id: 21, name: "Ketchup", image: "/", amount: 0, price: 5 },
-    { id: 22, name: "Senap", image: "/", amount: 0, price: 5 },
-    { id: 23, name: "Dressing", image: "/", amount: 0, price: 10 },
-    { 
-      id: 24, 
-      name: "Sallad", 
-      image: "/", 
-      amount: 0, 
-      sizes: [
-        { size: "Liten", price: 15 },
-        { size: "Mellan", price: 25 },
-        { size: "Stor", price: 35 }
-      ], 
-      selectedSize: "Mellan",
-      sizeAmounts: { "Liten": 0, "Mellan": 0, "Stor": 0 }
+    fetchProducts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const tabs: ActiveTab[] = ["meal", "food", "drink", "extra"];
+    const lookup: Record<ActiveTab, Item[]> = {
+      meal: mealItems,
+      food: foodItems,
+      drink: drinkItems,
+      extra: extraItems
+    };
+    const firstWithItems = tabs.find(tab => lookup[tab].length > 0);
+    if (firstWithItems && lookup[activeTab].length === 0 && activeTab !== firstWithItems) {
+      setActiveTab(firstWithItems);
     }
-  ]);
+  }, [activeTab, mealItems, foodItems, drinkItems, extraItems]);
 
-  const handleAmountChange = (id: number, delta: number, size?: SizeOption) => {
+  const currentItems = useMemo(() => {
+    switch (activeTab) {
+      case "meal":
+        return mealItems;
+      case "food":
+        return foodItems;
+      case "drink":
+        return drinkItems;
+      case "extra":
+        return extraItems;
+      default:
+        return [];
+    }
+  }, [activeTab, mealItems, foodItems, drinkItems, extraItems]);
+
+  const handleAmountChange = (id: string, delta: number, size?: SizeOption) => {
     const updateItemInArray = (items: Item[], setItems: React.Dispatch<React.SetStateAction<Item[]>>) => {
       const item = items.find(i => i.id === id);
       if (!item) return;
@@ -225,7 +400,7 @@ const [mealItems, setMealItems] = useState<Item[]>([
     return item.price ?? 0;
   };
 
-  const handleSizeChange = (id: number, size: SizeOption) => {
+  const handleSizeChange = (id: string, size: SizeOption) => {
     const updateItemInArray = (setItems: React.Dispatch<React.SetStateAction<Item[]>>) => {
       setItems(prev => prev.map(i => 
         i.id === id ? { ...i, selectedSize: size } : i
@@ -243,7 +418,7 @@ const [mealItems, setMealItems] = useState<Item[]>([
     }
   };
 
-  const handleRemoveItem = (id: number, size?: SizeOption) => {
+  const handleRemoveItem = (id: string, size?: SizeOption) => {
     const updateItemInArray = (_items: Item[], setItems: React.Dispatch<React.SetStateAction<Item[]>>) => {
       setItems(prev => prev.map(i => {
         if (i.id === id) {
@@ -332,20 +507,13 @@ const [mealItems, setMealItems] = useState<Item[]>([
 
       <div className="tab-content">
         <div className="items-container">
-          {(() => {
-            switch (activeTab) {
-              case "meal":
-                return mealItems;
-              case "food":
-                return foodItems;
-              case "drink":
-                return drinkItems;
-              case "extra":
-                return extraItems;
-              default:
-                return [];
-            }
-          })().map((item) => (
+          {loadingProducts ? (
+            <div className="items-feedback">Laddar produkter...</div>
+          ) : fetchError ? (
+            <div className="items-feedback error">{fetchError}</div>
+          ) : currentItems.length === 0 ? (
+            <div className="items-feedback">Inga produkter tillgängliga i denna kategori.</div>
+          ) : currentItems.map((item) => (
             <div key={item.id} className={`item-card ${item.amount > 0 ? "selected" : ""}`}>
               <figure><img src={item.image} alt={item.name} className="item-image" /></figure>
               <h2 className="item-name">{item.name}</h2>

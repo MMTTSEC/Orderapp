@@ -79,9 +79,9 @@
 
 /* Item card styling */
 .item-card {
-  flex: 1 1 calc(25% - 1rem);
-  min-width: 400px;
-  max-width: calc(25%);
+  flex: 1 1 240px;
+  min-width: 240px;
+  max-width: 300px;
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
@@ -99,14 +99,15 @@
 }
 
 figure {
-  width: 150px;
+  width: 120px;
   margin: 0 auto;
 }
 
 .item-image {
-  min-width: 100%;
-  min-height: 150px;
-  object-fit: cover;
+  width: 100%;
+  height: auto;
+  max-height: 120px;
+  object-fit: contain;
   background-color: var(--color-gray-light);
   border-radius: var(--border-radius-mid)
 }

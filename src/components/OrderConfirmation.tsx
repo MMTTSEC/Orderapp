@@ -3,21 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import '../styles/orderConfirmation.css';
 import '../styles/shoppingCart.css'; // reuse cart styles for consistent look
 
-type SizeOption = "Liten" | "Mellan" | "Stor";
+type SizeOption = string;
 
 type SizePrice = {
   size: SizeOption;
   price: number;
+  productId?: string;
+  productQuantityId?: string;
 };
 
 type Item = {
-  id: number;
+  id: string;
   name: string;
   image: string;
   amount: number;
   price?: number;
   sizes?: SizePrice[];
   selectedSize?: SizeOption;
+  sizeAmounts?: Record<string, number>;
 };
 
 interface OrderConfirmationProps {
