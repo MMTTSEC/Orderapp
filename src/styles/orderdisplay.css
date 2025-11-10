@@ -2,7 +2,7 @@
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
-  padding: var(--spacing-big) 0;
+  padding: var(--spacing-big) var(--spacing-mid);
 }
 
 .orders-section + .orders-section {
@@ -130,7 +130,7 @@
 
 @media (max-width: 700px) {
   .order-display-container {
-    padding: var(--spacing-mid) 0;
+    padding: var(--spacing-mid) var(--spacing-mid);
   }
   .orders-board {
     grid-template-columns: repeat(3, 1fr);

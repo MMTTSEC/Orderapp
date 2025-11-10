@@ -148,7 +148,7 @@
 .product-item {
     background-color: var(--color-white);
     border-radius: var(--border-radius-small);
-    padding: var(--spacing-small) var(--spacing-mid);
+    padding: var(--spacing-mid) var(--spacing-mid);
     display: flex;
     align-items: center;
     gap: var(--spacing-small);
@@ -218,7 +218,6 @@
     color: var(--color-white);
     cursor: pointer;
     transition: all 0.2s;
-    margin-top: var(--spacing-mid);
 }
 
 .complete-button:hover {

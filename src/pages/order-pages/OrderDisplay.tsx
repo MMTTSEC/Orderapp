@@ -197,7 +197,7 @@ export default function OrderDisplay() {
   return <>
     <div className="order-display-container">
       <section className="orders-section">
-        <h2>Pågående beställningar</h2>
+        <h2>Pågående Beställningar</h2>
         <div className="orders-board">
           {loading ? (
             <div className="order-chip">Laddar...</div>
@@ -215,7 +215,7 @@ export default function OrderDisplay() {
       </section>
 
       <section className="orders-section">
-        <h2>Färdiga beställningar</h2>
+        <h2>Färdiga Beställningar</h2>
         <div className="orders-board">
           {loading ? (
             <div className="order-chip order-chip--done">Laddar...</div>

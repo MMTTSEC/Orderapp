@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { checkLoginStatus, type UserData } from '../../auth/authUtils';
 import NotFoundPage from '../general-pages/NotFoundPage';
 import { StaffHeader } from './utils/staffheader';
-import { BottomNav, CircleIcon, ClockIcon, DoorIcon } from './utils/bottomNavMenu';
+import { BottomNav, CircleIcon, DoorIcon } from './utils/bottomNavMenu';
 import '../../styles/stafforder.css';
 
 StaffOrder.route = {
@@ -348,13 +348,6 @@ export default function StaffOrder() {
       icon: <CircleIcon />,
       onClick: () => handleNavigation('orders'),
       isActive: activeTab === 'orders',
-    },
-    {
-      id: 'history',
-      label: 'history',
-      icon: <ClockIcon />,
-      onClick: () => handleNavigation('history'),
-      isActive: activeTab === 'history',
     },
     {
       id: 'signout',

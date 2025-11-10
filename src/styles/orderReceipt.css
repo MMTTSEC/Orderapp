@@ -11,12 +11,14 @@
 }
 
 .main-container.order-receipt-page button.btn-left {
+  min-width: 230px;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
   border-right: 1px solid var(--color-background);
 }
 
 .main-container.order-receipt-page button.btn-right {
+  min-width: 230px;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
   border-left: 1px solid var(--color-background);
