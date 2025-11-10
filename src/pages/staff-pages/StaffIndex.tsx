@@ -355,6 +355,22 @@ export default function StaffIndex() {
     }
 
     try {
+      // Fetch the user's email from the auth endpoint
+      const authResponse = await fetch('/api/auth/Login/', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!authResponse.ok) {
+        throw new Error('Failed to fetch user email');
+      }
+
+      const authData = await authResponse.json();
+      const userEmail = authData.email;
+
       const inProgressStatusId = await getStatusId('in progress');
 
       if (!inProgressStatusId) {
@@ -372,7 +388,8 @@ export default function StaffIndex() {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            orderStatusId: inProgressStatusId
+            orderStatusId: inProgressStatusId,
+            staffName: userEmail
           })
         });
       } else {
@@ -385,7 +402,8 @@ export default function StaffIndex() {
           body: JSON.stringify({
             title: targetOrder.title ?? `Order ${orderId}`,
             customerOrderId: orderId,
-            orderStatusId: inProgressStatusId
+            orderStatusId: inProgressStatusId,
+            staffName: userEmail
           })
         });
       }
@@ -587,7 +605,7 @@ export default function StaffIndex() {
 
             <OrdersList
               orders={filteredOrders}
-            onConfirm={activeFilter === 'inprogress' ? handleCompleteOrder : handleConfirmOrder}
+              onConfirm={activeFilter === 'inprogress' ? handleCompleteOrder : handleConfirmOrder}
               onCancel={handleCancelOrder}
               onOrderClick={activeFilter === 'new' ? undefined : handleOrderClick}
             />
