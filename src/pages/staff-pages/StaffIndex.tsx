@@ -1,5 +1,5 @@
 // StaffIndex.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotFoundPage from '../general-pages/NotFoundPage';
 import { checkLoginStatus, logout, type UserData } from '../../auth/authUtils';
@@ -41,8 +41,13 @@ export default function StaffIndex() {
   });
   const statusMapRef = useRef<Record<string, string>>({});
   const statusFetchPromiseRef = useRef<Promise<Record<string, string>> | null>(null);
+  const activeFilterRef = useRef(activeFilter);
 
-  const normalizeStatus = (rawStatus: unknown): 'pending' | 'inprogress' | 'finished' | 'other' => {
+  useEffect(() => {
+    activeFilterRef.current = activeFilter;
+  }, [activeFilter]);
+
+  const normalizeStatus = useCallback((rawStatus: unknown): 'pending' | 'inprogress' | 'finished' | 'other' => {
     if (typeof rawStatus !== 'string') {
       return 'other';
     }
@@ -62,9 +67,9 @@ export default function StaffIndex() {
     }
 
     return 'other';
-  };
+  }, []);
 
-  const extractHandleStatus = (handleOrder: any): 'pending' | 'inprogress' | 'finished' | 'other' => {
+  const extractHandleStatus = useCallback((handleOrder: any): 'pending' | 'inprogress' | 'finished' | 'other' => {
     if (!handleOrder) {
       return 'other';
     }
@@ -77,9 +82,9 @@ export default function StaffIndex() {
 
     const rawStatus = source?.title ?? source?.displayText ?? source?.orderStatus ?? source?.status;
     return normalizeStatus(rawStatus);
-  };
+  }, [normalizeStatus]);
 
-  const fetchStatusMap = async (): Promise<Record<string, string>> => {
+  const fetchStatusMap = useCallback(async (): Promise<Record<string, string>> => {
     if (Object.keys(statusMapRef.current).length > 0) {
       return statusMapRef.current;
     }
@@ -123,22 +128,22 @@ export default function StaffIndex() {
     } finally {
       statusFetchPromiseRef.current = null;
     }
-  };
+  }, []);
 
-  const getStatusId = async (statusName: string) => {
+  const getStatusId = useCallback(async (statusName: string) => {
     const normalized = statusName.trim().toLowerCase();
     const map = await fetchStatusMap();
     return map[normalized];
-  };
+  }, [fetchStatusMap]);
 
-  const verifyLogin = async () => {
+  const verifyLogin = useCallback(async () => {
     const { isAuthorized: authorized, userData: data } = await checkLoginStatus();
     setIsAuthorized(authorized);
     setUserData(data);
     setLoading(false);
-  };
+  }, []);
 
-  const fetchOrders = async (filter: string = 'new') => {
+  const fetchOrders = useCallback(async (filter: string = 'new') => {
     try {
       const commonFetchOptions: RequestInit = {
         credentials: 'include',
@@ -261,9 +266,9 @@ export default function StaffIndex() {
       console.error('Error fetching orders:', error);
       setOrders([]);
     }
-  };
+  }, [extractHandleStatus]);
 
-  const fetchOrderCounts = async () => {
+  const fetchOrderCounts = useCallback(async () => {
     try {
       const commonFetchOptions: RequestInit = {
         credentials: 'include',
@@ -314,7 +319,7 @@ export default function StaffIndex() {
     } catch (error) {
       console.error('Error fetching order counts:', error);
     }
-  };
+  }, [extractHandleStatus]);
 
   const handleLogout = async () => {
     const success = await logout();
@@ -505,15 +510,51 @@ export default function StaffIndex() {
 
   useEffect(() => {
     verifyLogin();
-    fetchOrders(activeFilter);
-    fetchOrderCounts();
-  }, []);
+  }, [verifyLogin]);
 
-  // Fetch orders when filter changes
   useEffect(() => {
     fetchOrders(activeFilter);
     fetchOrderCounts();
-  }, [activeFilter]);
+  }, [activeFilter, fetchOrderCounts, fetchOrders]);
+
+  useEffect(() => {
+    if (loading || !isAuthorized) {
+      return;
+    }
+
+    const source = new EventSource('/api/sse/orders');
+    let refreshTimeout: number | undefined;
+
+    const scheduleRefresh = () => {
+      if (refreshTimeout !== undefined) {
+        window.clearTimeout(refreshTimeout);
+      }
+      refreshTimeout = window.setTimeout(() => {
+        fetchOrders(activeFilterRef.current);
+        fetchOrderCounts();
+      }, 200);
+    };
+
+    source.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload?.type === 'snapshot') {
+          scheduleRefresh();
+        }
+      } catch {
+      }
+    };
+
+    source.onerror = () => {
+    };
+
+    return () => {
+      source.close();
+      if (refreshTimeout !== undefined) {
+        window.clearTimeout(refreshTimeout);
+      }
+    };
+  }, [loading, isAuthorized, fetchOrderCounts, fetchOrders]);
 
   // Define navigation items
   const navItems = [

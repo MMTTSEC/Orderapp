@@ -34,9 +34,14 @@ public class OrderSseHub
         }
     }
 
-    public void BroadcastSnapshot(IEnumerable<OrderDto> orders)
+    public void BroadcastSnapshot(IEnumerable<OrderDto> orders, IEnumerable<string>? pendingCustomerIds = null)
     {
-        var payload = JsonSerializer.Serialize(new { type = "snapshot", orders });
+        var payload = JsonSerializer.Serialize(new
+        {
+            type = "snapshot",
+            orders,
+            pendingCustomerIds = pendingCustomerIds ?? Array.Empty<string>()
+        });
         _latestSnapshotJson = payload;
         foreach (var c in _clients.Values)
         {
