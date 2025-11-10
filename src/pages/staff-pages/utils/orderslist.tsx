@@ -23,13 +23,13 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCan
         const diffInMinutes = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60));
 
         if (diffInMinutes < 60) {
-            return `${diffInMinutes}min ago`;
+            return `${diffInMinutes} minuter sedan`;
         } else if (diffInMinutes < 1440) {
             const hours = Math.floor(diffInMinutes / 60);
-            return `${hours}h ago`;
+            return `${hours} timmar sedan`;
         } else {
             const days = Math.floor(diffInMinutes / 1440);
-            return `${days}d ago`;
+            return `${days} dagar sedan`;
         }
     };
 
@@ -37,7 +37,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCan
         <div className="orders-list">
             {orders.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#666', marginTop: '20px' }}>
-                    No orders available
+                    Inga beställningar tillgängliga just nu.
                 </p>
             ) : (
                 orders.map((order) => (
@@ -49,13 +49,13 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCan
                     >
                         <div className="order-indicator"></div>
                         <div className="order-info">
-                            <div className="order-number-list">Order: #{order.title}</div>
-                            <div className="order-time">Placed: {formatTimeAgo(order.orderPlacedAt)}</div>
+                            <div className="order-number-list">Beställning: #{order.title}</div>
+                            <div className="order-time">Skapad: {formatTimeAgo(order.orderPlacedAt)}</div>
                         </div>
                         <div className="order-actions">
                             <button
                                 className="action-button confirm"
-                                aria-label="Confirm order"
+                                aria-label="Bekräfta beställning"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onConfirm?.(order.id);
@@ -67,7 +67,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, onConfirm, onCan
                             </button>
                             <button
                                 className="action-button cancel"
-                                aria-label="Cancel order"
+                                aria-label="Avbryt beställning"
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onCancel?.(order.id);

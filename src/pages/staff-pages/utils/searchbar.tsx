@@ -10,7 +10,7 @@ interface SearchBarProps {
 export const SearchBar: FC<SearchBarProps> = ({
     value,
     onChange,
-    placeholder = 'Search orders...'
+    placeholder = 'Sök beställningar...'
 }) => {
     return (
         <div className="search-container">

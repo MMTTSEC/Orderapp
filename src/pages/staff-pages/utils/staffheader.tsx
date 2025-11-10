@@ -1,6 +1,7 @@
 // StaffHeader.tsx
 import { type FC } from 'react';
 import { Link } from 'react-router-dom';
+import burgerLogo from '../../../assets/logo.png';
 
 interface StaffHeaderProps {
     username: string;
@@ -12,20 +13,18 @@ const UserIcon: FC = () => (
 );
 
 export const StaffHeader: FC<StaffHeaderProps> = ({
-    username,
-    logoText = 'Cafe\nLogos'
+    username
 }) => {
     return (
         <header className="staff-header">
             <div className="logo-container">
                 <Link to="/staff" className="logo-link" aria-label="Gå till personal-sidan">
                     <div className="logo-circle">
-                        {logoText.split('\n').map((line, i, arr) => (
-                            <span key={i}>
-                                {line}
-                                {i < arr.length - 1 && <br />}
-                            </span>
-                        ))}
+                        <img 
+                            src={burgerLogo} 
+                            alt="Burger Bliss Logo" 
+                            className="logo-image"
+                        />
                     </div>
                 </Link>
             </div>

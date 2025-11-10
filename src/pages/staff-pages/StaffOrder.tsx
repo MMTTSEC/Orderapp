@@ -336,14 +336,18 @@ export default function StaffOrder() {
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60));
 
+    if (diffInMinutes <= 0) {
+      return "precis nu";
+    }
+
     if (diffInMinutes < 60) {
-      return `${diffInMinutes}min ago`;
+      return `${diffInMinutes} ${diffInMinutes === 1 ? "minut" : "minuter"} sedan`;
     } else if (diffInMinutes < 1440) {
       const hours = Math.floor(diffInMinutes / 60);
-      return `${hours}h ago`;
+      return `${hours} ${hours === 1 ? "timme" : "timmar"} sedan`;
     } else {
       const days = Math.floor(diffInMinutes / 1440);
-      return `${days}d ago`;
+      return `${days} ${days === 1 ? "dag" : "dagar"} sedan`;
     }
   };
 
@@ -358,14 +362,14 @@ export default function StaffOrder() {
   const navItems = [
     {
       id: 'orders',
-      label: 'orders',
+      label: 'Beställningar',
       icon: <CircleIcon />,
       onClick: () => handleNavigation('orders'),
       isActive: activeTab === 'orders',
     },
     {
       id: 'signout',
-      label: 'sign out',
+      label: 'Logga ut',
       icon: <DoorIcon />,
       onClick: () => handleNavigation('signout'),
       isActive: activeTab === 'signout',
@@ -382,8 +386,8 @@ export default function StaffOrder() {
         <div>
           <StaffHeader username={userData?.username || "Username"} logoText="Cafe\nLogos" />
           <div className="order-not-found">
-            <h2>Order not found</h2>
-            <button onClick={() => navigate('/staff/')}>Back to Orders</button>
+            <h2>Beställning hittades inte</h2>
+            <button onClick={() => navigate('/staff/')}>Tillbaka till beställningar</button>
           </div>
           <BottomNav items={navItems} />
         </div>
@@ -413,24 +417,24 @@ export default function StaffOrder() {
 
         <main className="staff-order-main">
           <div className="order-header">
-            <button className="back-button" onClick={() => navigate('/staff/')} aria-label="Go back to orders list">
+            <button className="back-button" onClick={() => navigate('/staff/')} aria-label="Gå tillbaka till beställningar">
               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" fill="currentColor" />
               </svg>
             </button>
-            <h1>Order Details</h1>
+            <h1>Orderdetaljer</h1>
             <h2 className="order-number">#{orderDetails.orderNumber}</h2>
           </div>
 
           <div className="order-info-card">
             <div className="customer-info">
-              <div className="customer-name">Order: {orderDetails.orderNumber}</div>
-              <div className="order-time">Placed: {formatTimeAgo(orderDetails.placedAt)}</div>
+              <div className="customer-name">Beställning: {orderDetails.orderNumber}</div>
+              <div className="order-time">Skapad: {formatTimeAgo(orderDetails.placedAt)}</div>
             </div>
             <button
               className="cancel-button"
               onClick={handleCancelOrder}
-              aria-label="Cancel order"
+              aria-label="Avbryt beställning"
             >
               <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="white" />
@@ -454,7 +458,7 @@ export default function StaffOrder() {
                     <button
                       className={`product-checkbox ${isCompleted ? 'checked' : ''}`}
                       onClick={() => handleProductToggle(uniqueId)}
-                      aria-label={`Mark ${productName} as ${isCompleted ? 'incomplete' : 'complete'}`}
+                      aria-label={`${isCompleted ? `Markera ${productName} som ofullständig` : `Markera ${productName} som slutförd`}`}
                       disabled={isFinished}
                       style={isFinished ? { cursor: 'not-allowed', opacity: 0.8 } : {}}
                     >
@@ -479,7 +483,7 @@ export default function StaffOrder() {
               onClick={handleCompleteOrder}
               disabled={!allProductsCompleted}
             >
-              Completed
+              Slutför beställning
             </button>
           )}
         </main>
