@@ -118,23 +118,33 @@ export default function OrderSelection() {
       return `/media/${path}`;
     };
 
+    const detectSizeFromSuffix = (name: string) => {
+      let current = name.trim();
+      let derivedSize: string | undefined;
+      while (true) {
+        const parts = current.split(/\s+/);
+        if (parts.length <= 1) break;
+        const last = parts[parts.length - 1];
+        const normalized = normalizeSizeName(last);
+        if (!normalized || normalized === "Standard") break;
+        derivedSize = derivedSize ?? normalized;
+        parts.pop();
+        current = parts.join(' ').trim();
+      }
+      return {
+        strippedName: current || name,
+        derivedSize
+      };
+    };
+
     const extractBaseNameAndSize = (title: string, sizeTitle?: string | null) => {
-      let baseName = title?.trim() ?? '';
+      const initialName = title?.trim() ?? '';
       let sizeLabel = normalizeSizeName(sizeTitle);
 
-      const attemptSuffixRemoval = (candidate: string) => {
-        const normalized = normalizeSizeName(candidate);
-        if (normalized && normalized !== "Standard") {
-          sizeLabel = normalized;
-          baseName = baseName.replace(new RegExp(`\\s+${candidate}$`, 'i'), '').trim();
-        }
-      };
-
-      if (!sizeLabel || sizeLabel === "Standard") {
-        const parts = baseName.split(/\s+/);
-        if (parts.length > 1) {
-          attemptSuffixRemoval(parts[parts.length - 1]);
-        }
+      const suffixInfo = detectSizeFromSuffix(initialName);
+      let baseName = suffixInfo.strippedName;
+      if (!sizeLabel && suffixInfo.derivedSize) {
+        sizeLabel = suffixInfo.derivedSize;
       }
 
       if (!baseName) baseName = title;
@@ -144,22 +154,25 @@ export default function OrderSelection() {
     };
 
     const ensureItem = (map: Map<string, Item>, key: string, baseName: string, category?: string) => {
-      if (!map.has(key)) {
-        map.set(key, {
-          id: key,
-          name: baseName,
-          image: "/",
-          amount: 0,
-          price: 0,
-          sizes: undefined,
-          selectedSize: undefined,
-          sizeAmounts: undefined,
-          category
-        });
+      const existing = map.get(key);
+      if (existing) {
+        existing.name = baseName;
+        if (category) existing.category = category;
+        return existing;
       }
-      const item = map.get(key)!;
-      item.name = baseName;
-      if (category) item.category = category;
+
+      const item: Item = {
+        id: key,
+        name: baseName,
+        image: "/",
+        amount: 0,
+        price: 0,
+        sizes: undefined,
+        selectedSize: undefined,
+        sizeAmounts: undefined,
+        category
+      };
+      map.set(key, item);
       return item;
     };
 
@@ -193,7 +206,7 @@ export default function OrderSelection() {
         sizeAmounts[sizeLabel] = 0;
       }
       item.sizeAmounts = sizeAmounts;
-      if (!item.selectedSize) {
+      if (!item.selectedSize || sizeLabel.toLowerCase() === "small") {
         item.selectedSize = sizeLabel;
       }
       item.price = undefined;
@@ -230,8 +243,8 @@ export default function OrderSelection() {
           if (!prod.id) return;
           const { baseName, sizeLabel } = extractBaseNameAndSize(prod.title ?? 'Produkt', prod.size?.title ?? prod.size?.portionSize);
           const category = prod.category ?? undefined;
-          const key = `${toSlug(baseName)}-${toSlug(category ?? 'misc')}`;
-          const item = ensureItem(itemsMap, key, baseName, category);
+          const baseKey = toSlug(baseName);
+          const item = ensureItem(itemsMap, baseKey, baseName, category);
 
           const imgUrl = getImageUrl(prod.image?.paths);
           if (imgUrl !== "/" && (item.image === "/" || !item.image)) {
@@ -246,8 +259,8 @@ export default function OrderSelection() {
           const productTitle = entry.product?.title ?? entry.title ?? 'Produkt';
           const category = entry.product?.category ?? undefined;
           const { baseName, sizeLabel } = extractBaseNameAndSize(productTitle, entry.size?.title ?? entry.size?.portionSize);
-          const key = `${toSlug(baseName)}-${toSlug(category ?? 'misc')}`;
-          const item = ensureItem(itemsMap, key, baseName, category);
+          const baseKey = toSlug(baseName);
+          const item = ensureItem(itemsMap, baseKey, baseName, category);
 
           const imgUrl = getImageUrl(entry.product?.image?.paths);
           if (imgUrl !== "/" && (item.image === "/" || !item.image)) {
@@ -263,11 +276,28 @@ export default function OrderSelection() {
         const baseItems = Array.from(itemsMap.values()).map(item => {
           if (item.sizes && item.sizes.length > 0) {
             const sizeAmounts = item.sizeAmounts ?? {};
+            const preferredOrder = ["small", "medium", "large", "x-large", "xl", "xxl"];
+            item.sizes.sort((a, b) => {
+              const aIndex = preferredOrder.indexOf(a.size.toLowerCase());
+              const bIndex = preferredOrder.indexOf(b.size.toLowerCase());
+              if (aIndex === -1 && bIndex === -1) {
+                return a.size.localeCompare(b.size);
+              }
+              if (aIndex === -1) return 1;
+              if (bIndex === -1) return -1;
+              return aIndex - bIndex;
+            });
+
             item.sizes.forEach(size => {
               if (sizeAmounts[size.size] === undefined) sizeAmounts[size.size] = 0;
             });
             item.sizeAmounts = sizeAmounts;
-            item.selectedSize = item.selectedSize ?? item.sizes[0].size;
+            const smallOption = item.sizes.find(size => size.size.toLowerCase() === "small");
+            if (smallOption) {
+              item.selectedSize = smallOption.size;
+            } else {
+              item.selectedSize = item.selectedSize ?? item.sizes[0].size;
+            }
             item.price = undefined;
           } else {
             item.price = item.price ?? 0;
@@ -494,17 +524,21 @@ export default function OrderSelection() {
             <div key={item.id} className={`item-card ${item.amount > 0 ? "selected" : ""}`}>
               <figure><img src={item.image} alt={item.name} className="item-image" /></figure>
               <h2 className="item-name">{item.name}</h2>
-              {item.sizes && (
+              {item.sizes && item.sizes.length > 0 && (
                 <div className="size-selector">
-                  {item.sizes.map((sizeObj) => (
-                    <button
-                      key={sizeObj.size}
-                      className={`size-btn ${item.selectedSize === sizeObj.size ? "active" : ""}`}
-                      onClick={() => handleSizeChange(item.id, sizeObj.size)}
-                    >
-                      {sizeObj.size}
-                    </button>
-                  ))}
+                  <label htmlFor={`size-${item.id}`} className="visually-hidden">Storlek</label>
+                  <select
+                    id={`size-${item.id}`}
+                    className="size-dropdown"
+                    value={item.selectedSize}
+                    onChange={(e) => handleSizeChange(item.id, e.target.value)}
+                  >
+                    {item.sizes.map((sizeObj) => (
+                      <option key={sizeObj.size} value={sizeObj.size}>
+                        {sizeObj.size}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               )}
               

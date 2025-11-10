@@ -122,31 +122,35 @@ figure {
 
 /* Size selector */
 .size-selector {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
   margin: var(--spacing-mid);
 }
 
-.size-btn {
-  background-color: transparent;
-  border: 1px dashed var(--color-primary);
-  color: var(--color-primary);
+.size-dropdown {
+  width: 100%;
+  padding: var(--spacing-small);
   border-radius: var(--border-radius-small);
-  padding: var(--spacing-small) var(--spacing-mid);
-  font-size: 0.9rem;
+  border: 1px solid var(--color-primary);
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: unset;
+  background-color: #fff;
+  color: var(--color-primary);
 }
 
-.size-btn:hover {
-  background-color: #e0e0e0;
+.size-dropdown:focus {
+  outline: none;
+  border-color: var(--color-primary-hover);
+  box-shadow: 0 0 0 2px rgba(61, 147, 255, 0.2);
 }
 
-.size-btn.active {
-  background-color: var(--color-primary);
-  color: var(--color-white);
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 
 /* Item price */
