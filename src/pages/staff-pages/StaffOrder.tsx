@@ -127,8 +127,9 @@ export default function StaffOrder() {
 
       const data = await response.json();
 
-      // Also try to fetch the HandleOrder to get handleOrderId
+      // Also try to fetch the HandleOrder to get handleOrderId and status
       let handleOrderId: string | undefined;
+      let orderStatus = 'New';
       try {
         const handleResponse = await fetch('http://localhost:5173/api/expand/HandleOrder');
         if (handleResponse.ok) {
@@ -140,6 +141,13 @@ export default function StaffOrder() {
             });
             if (matchingHandle) {
               handleOrderId = matchingHandle.id ?? matchingHandle.contentItemId;
+              // Extract status from orderStatus object
+              const statusObj = matchingHandle.orderStatus ?? matchingHandle.orderStatusId;
+              if (statusObj && typeof statusObj === 'object') {
+                orderStatus = statusObj.title ?? statusObj.Title ?? statusObj.displayText ?? statusObj.DisplayText ?? 'New';
+              } else if (typeof statusObj === 'string') {
+                orderStatus = statusObj;
+              }
             }
           }
         }
@@ -153,11 +161,14 @@ export default function StaffOrder() {
         orderNumber: data.title,
         placedAt: data.orderPlacedAt,
         products: data.product || [],
-        status: 'New',
+        status: orderStatus,
         handleOrderId
       };
 
       setOrderDetails(orderData);
+
+      // Check if order is finished
+      const isFinished = orderStatus.trim().toLowerCase() === 'finished';
 
       // Initialize product states and fetch sizes
       const initialStates: { [key: string]: boolean } = {};
@@ -169,9 +180,10 @@ export default function StaffOrder() {
           const quantity = product.quantity || 1;
 
           // Initialize state for each quantity instance
+          // If order is finished, set all checkboxes to true
           for (let i = 0; i < quantity; i++) {
             const uniqueId = `${product.id}-${i}`;
-            initialStates[uniqueId] = false;
+            initialStates[uniqueId] = isFinished;
           }
 
           // Fetch size info once per product (not per quantity)
@@ -192,6 +204,11 @@ export default function StaffOrder() {
   };
 
   const handleProductToggle = (productId: string) => {
+    // Don't allow toggling if order is finished
+    if (orderDetails && orderDetails.status.trim().toLowerCase() === 'finished') {
+      return;
+    }
+
     setProductStates(prev => ({
       ...prev,
       [productId]: !prev[productId]
@@ -330,6 +347,9 @@ export default function StaffOrder() {
       );
     }
 
+    // Check if order is finished
+    const isFinished = orderDetails.status.trim().toLowerCase() === 'finished';
+
     // Check if all products are completed (accounting for quantities)
     const allProductsCompleted = orderDetails.products.length > 0 &&
       orderDetails.products.every((product: Product) => {
@@ -392,6 +412,8 @@ export default function StaffOrder() {
                       className={`product-checkbox ${isCompleted ? 'checked' : ''}`}
                       onClick={() => handleProductToggle(uniqueId)}
                       aria-label={`Mark ${productName} as ${isCompleted ? 'incomplete' : 'complete'}`}
+                      disabled={isFinished}
+                      style={isFinished ? { cursor: 'not-allowed', opacity: 0.8 } : {}}
                     >
                       {isCompleted && (
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -407,13 +429,16 @@ export default function StaffOrder() {
             })}
           </div>
 
-          <button
-            className="complete-button"
-            onClick={handleCompleteOrder}
-            disabled={!allProductsCompleted}
-          >
-            Completed
-          </button>
+          {/* Only show complete button if order is not finished */}
+          {!isFinished && (
+            <button
+              className="complete-button"
+              onClick={handleCompleteOrder}
+              disabled={!allProductsCompleted}
+            >
+              Completed
+            </button>
+          )}
         </main>
 
         <BottomNav items={navItems} />
