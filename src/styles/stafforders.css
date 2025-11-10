@@ -4,7 +4,7 @@ html,
 body {
     margin: 0;
     height: 100%;
-    overflow: hidden
+    /* Removed global overflow: hidden - each page should control its own overflow */
 }
 
 .staff-index-container {
@@ -17,6 +17,7 @@ body {
     height: 100vh;
     max-height: 100vh;
     overflow: hidden;
+    /* overflow: hidden is scoped to just this container */
 }
 
 .staff-header {
