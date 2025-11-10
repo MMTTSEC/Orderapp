@@ -156,13 +156,27 @@ export default function StaffOrder() {
       }
 
       // Map the data to OrderDetails structure
-      // Handle both single item (productId) and multiple items (product array)
-      let productItems = [];
+      // Normalize product(s) to an array of either product objects or product IDs
+      let productItems: any[] = [];
       if (Array.isArray(data.product)) {
         productItems = data.product;
+      } else if (data.product && typeof data.product === 'object') {
+        productItems = [data.product];
       } else if (data.productId) {
-        // Single item case - wrap in array
-        productItems = [data.productId];
+        if (Array.isArray(data.productId)) {
+          productItems = data.productId;
+        } else if (typeof data.productId === 'string') {
+          productItems = [data.productId];
+        } else if (typeof data.productId === 'object') {
+          const maybeId = (data.productId.id ??
+            data.productId.contentItemId ??
+            (Object.values(data.productId || {}).find((v: any) => typeof v === 'string')));
+          if (typeof maybeId === 'string') {
+            productItems = [maybeId];
+          } else {
+            productItems = [data.productId];
+          }
+        }
       }
 
       // Check if products are just IDs (strings) or full objects
