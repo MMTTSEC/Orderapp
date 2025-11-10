@@ -1,5 +1,5 @@
 // Order 5 from our mockup
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import '../../styles/orderReceipt.css';
 
 OrderReceipt.route = {
@@ -7,9 +7,12 @@ OrderReceipt.route = {
 };
 
 export default function OrderReceipt() {
+  const location = useLocation();
   const navigate = useNavigate();
+  const orderNumber = (location.state as any)?.orderNumber;
+  
   const goToOrderCompleted = () => {
-    navigate("/order-completed");
+    navigate("/order-completed", { state: { orderNumber } });
   };
 
    return <>

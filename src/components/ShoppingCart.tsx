@@ -1,27 +1,30 @@
 import { useState } from 'react';
 import '../styles/shoppingCart.css';
 
-type SizeOption = "Liten" | "Mellan" | "Stor";
+type SizeOption = string;
 
 type SizePrice = {
   size: SizeOption;
   price: number;
+  productId?: string;
+  productQuantityId?: string;
 };
 
 type Item = {
-  id: number;
+  id: string;
   name: string;
   image: string;
   amount: number;
   price?: number;
   sizes?: SizePrice[];
   selectedSize?: SizeOption;
+  sizeAmounts?: Record<string, number>;
 };
 
 interface ShoppingCartProps {
   items: Item[];
-  onUpdateAmount: (id: number, delta: number, size?: SizeOption) => void;
-  onRemoveItem: (id: number, size?: SizeOption) => void;
+  onUpdateAmount: (id: string, delta: number, size?: SizeOption) => void;
+  onRemoveItem: (id: string, size?: SizeOption) => void;
   onConfirm: () => void; // new prop to open confirmation overlay
 }
 
