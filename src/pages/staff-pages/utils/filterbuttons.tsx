@@ -23,7 +23,7 @@ export const FilterButtons: FC<FilterButtonsProps> = ({ filters }) => {
                     onClick={filter.onClick}
                 >
                     {filter.label}
-                    {filter.count !== undefined && `(${filter.count})`}
+                    {filter.count !== undefined && ` (${filter.count})`}
                 </button>
             ))}
         </div>

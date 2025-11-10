@@ -24,7 +24,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-mid) var(--spacing-mid) 0 var(--spacing-mid);
+    padding: var(--spacing-big) var(--spacing-big) 0 var(--spacing-big);
     margin-bottom: var(--spacing-big);
 }
 
@@ -32,6 +32,15 @@ body {
     display: flex;
     align-items: center;
 }
+
+.logo-container a {
+  text-decoration: none;
+}
+
+.logo-container a:hover {
+  transform: scale(1.05);
+}
+
 
 .logo-circle {
     width: 50px;
@@ -48,6 +57,11 @@ body {
     text-align: center;
     line-height: 1.1;
     padding: 5px;
+    text-decoration: none;
+}
+
+.logo-circle span {
+  text-decoration: none;
 }
 
 .user-info {
@@ -215,6 +229,7 @@ body {
     border: none;
     cursor: pointer;
     display: flex;
+    padding: var(--spacing-small) var(--spacing-mid);
     align-items: center;
     justify-content: center;
     transition: opacity 0.2s ease;

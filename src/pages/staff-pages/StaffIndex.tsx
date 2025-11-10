@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NotFoundPage from '../general-pages/NotFoundPage';
 import { checkLoginStatus, logout, type UserData } from '../../auth/authUtils';
-import { BottomNav, CircleIcon, ClockIcon, DoorIcon } from './utils/bottomNavMenu';
+import { BottomNav, CircleIcon, DoorIcon } from './utils/bottomNavMenu';
 import { StaffHeader } from './utils/staffheader';
 import { FilterButtons } from './utils/filterbuttons';
 import { SearchBar } from './utils/searchbar';
@@ -329,7 +329,7 @@ export default function StaffIndex() {
     // Add your navigation logic here
     switch (tab) {
       case 'orders':
-        navigate('/staff/orders');
+        navigate('/staff');
         break;
       case 'history':
         navigate('/staff/history');
@@ -523,13 +523,6 @@ export default function StaffIndex() {
       icon: <CircleIcon />,
       onClick: () => handleNavigation('orders'),
       isActive: activeTab === 'orders',
-    },
-    {
-      id: 'history',
-      label: 'history',
-      icon: <ClockIcon />,
-      onClick: () => handleNavigation('history'),
-      isActive: activeTab === 'history',
     },
     {
       id: 'signout',

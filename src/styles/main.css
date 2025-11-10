@@ -13,7 +13,7 @@
   /* Graphic Profile */
   /* Colors */
   --color-background: #F2F2F2;
-  --color-primary: #16703E;
+  --color-primary: #146639;
   --color-primary-hover: #2f975e;
   --color-secondary: #469BFB;
   /* Mainly for highlighting personal order */
@@ -29,8 +29,8 @@
 
   --color-red: #E70707;
   /* Delete buttons etc */
-  --color-red-hover: #9f0606;
-  --color-green: #14A44D;
+  --color-red-hover: #890505;
+  --color-green: #178d46;
   /* Checkmarks etc */
 
   /* Fonts */
@@ -180,12 +180,14 @@ button.small {
 }
 
 .main-container.order-index-page button.btn-left {
+  min-width: 230px;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
   border-right: 1px solid var(--color-background);
 }
 
 .main-container.order-index-page button.btn-right {
+  min-width: 230px;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
   border-left: 1px solid var(--color-background);
