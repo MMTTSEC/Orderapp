@@ -29,6 +29,7 @@ type Item = {
   selectedSize?: SizeOption;
   sizeAmounts?: Record<string, number>;
   category?: string;
+  productId?: string; // For items without sizes
 };
 
 type ProductQuantityResponse = {
@@ -182,6 +183,7 @@ export default function OrderSelection() {
         item.sizes = undefined;
         item.sizeAmounts = undefined;
         item.selectedSize = undefined;
+        item.productId = productId; // Store productId for items without sizes
         return;
       }
 

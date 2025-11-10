@@ -21,6 +21,8 @@ type Item = {
   sizes?: SizePrice[];
   selectedSize?: SizeOption;
   sizeAmounts?: Record<string, number>;
+  category?: string;
+  productId?: string; // For items without sizes
 };
 
 interface OrderConfirmationProps {
@@ -89,7 +91,7 @@ export default function OrderConfirmation({ items, onClose }: OrderConfirmationP
                 <div className="confirmation-actions">
                   <button
                     className="btn-confirm-order"
-                    onClick={() => navigate('/order-payment')}
+                    onClick={() => navigate('/order-payment', { state: { items } })}
                   ><i className="bi bi-paypal"></i>
                     Till Betalning
                   </button>
