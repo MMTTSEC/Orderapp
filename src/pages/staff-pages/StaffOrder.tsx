@@ -309,11 +309,73 @@ export default function StaffOrder() {
     }
   };
 
-  const handleCancelOrder = () => {
-    console.log('Cancelling order:', id);
-    // Add your cancel order logic here
-    // Navigate back to orders list
-    navigate('/staff/');
+  const handleCancelOrder = async () => {
+    if (!orderDetails) {
+      return;
+    }
+
+    try {
+      
+      const canceledStatusId = await getStatusId('canceled');
+      const pendingStatusId = canceledStatusId ? null : await getStatusId('pending');
+      const targetStatusId = canceledStatusId ?? pendingStatusId;
+
+      if (targetStatusId) {
+        if (orderDetails.handleOrderId) {
+          // Update existing handle order
+          const updateResponse = await fetch(`/api/HandleOrder/${orderDetails.handleOrderId}`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              orderStatusId: targetStatusId
+            })
+          });
+
+          if (updateResponse.ok) {
+            navigate('/staff/');
+            return;
+          }
+        } else {
+          // Create a new handle order directly in "canceled"/"pending"
+          const createResponse = await fetch('/api/HandleOrder', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              title: orderDetails.orderNumber ?? `Order ${orderDetails.id}`,
+              customerOrderId: orderDetails.id,
+              orderStatusId: targetStatusId
+            })
+          });
+
+          if (createResponse.ok) {
+            navigate('/staff/');
+            return;
+          }
+        }
+      }
+
+      const deleteResponse = orderDetails.handleOrderId ? await fetch(`/api/content/${orderDetails.handleOrderId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      }) : new Response(null, { status: 400 });
+
+      if (deleteResponse.ok) {
+        navigate('/staff/');
+        return;
+      }
+
+      const errorText = await deleteResponse.text().catch(() => '');
+      throw new Error(errorText || 'Kunde inte avbryta beställningen. Saknas behörighet att uppdatera/radera.');
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      alert('Kunde inte avbryta beställningen. Försök igen.');
+    }
   };
 
   const handleNavigation = (tab: string) => {

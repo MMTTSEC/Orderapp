@@ -22,7 +22,7 @@ interface Order {
   orderId: number | object;
   orderPlacedAt: string;
   handleOrderId?: string;
-  status?: 'pending' | 'inprogress' | 'finished' | 'other';
+  status?: 'pending' | 'inprogress' | 'finished' | 'canceled' | 'other';
 }
 
 export default function StaffIndex() {
@@ -47,7 +47,7 @@ export default function StaffIndex() {
     activeFilterRef.current = activeFilter;
   }, [activeFilter]);
 
-  const normalizeStatus = useCallback((rawStatus: unknown): 'pending' | 'inprogress' | 'finished' | 'other' => {
+  const normalizeStatus = useCallback((rawStatus: unknown): 'pending' | 'inprogress' | 'finished' | 'canceled' | 'other' => {
     if (typeof rawStatus !== 'string') {
       return 'other';
     }
@@ -62,6 +62,10 @@ export default function StaffIndex() {
       return 'finished';
     }
 
+    if (['canceled', 'cancelled', 'cancel'].includes(status)) {
+      return 'canceled';
+    }
+
     if (['pending', 'new', 'waiting', 'queued'].includes(status)) {
       return 'pending';
     }
@@ -69,7 +73,7 @@ export default function StaffIndex() {
     return 'other';
   }, []);
 
-  const extractHandleStatus = useCallback((handleOrder: any): 'pending' | 'inprogress' | 'finished' | 'other' => {
+  const extractHandleStatus = useCallback((handleOrder: any): 'pending' | 'inprogress' | 'finished' | 'canceled' | 'other' => {
     if (!handleOrder) {
       return 'other';
     }
@@ -193,7 +197,7 @@ export default function StaffIndex() {
           if (!statusInfo) {
             return true;
           }
-          return statusInfo.status !== 'inprogress' && statusInfo.status !== 'finished';
+          return statusInfo.status !== 'inprogress' && statusInfo.status !== 'finished' && statusInfo.status !== 'canceled';
         });
 
         mappedOrders = filteredCustomerOrders.map((order: any) => {
@@ -285,7 +289,7 @@ export default function StaffIndex() {
       const newData = newResponse.ok ? await newResponse.json() : [];
       const handleData = handleResponse.ok ? await handleResponse.json() : [];
 
-      const handleStatusByCustomerId: Record<string, { status: 'pending' | 'inprogress' | 'finished' | 'other'; handleOrderId?: string }> = {};
+      const handleStatusByCustomerId: Record<string, { status: 'pending' | 'inprogress' | 'finished' | 'canceled' | 'other'; handleOrderId?: string }> = {};
 
       if (Array.isArray(handleData)) {
         handleData.forEach((order: any) => {
@@ -304,7 +308,8 @@ export default function StaffIndex() {
         if (!statusInfo) {
           return true;
         }
-        return statusInfo.status !== 'inprogress' && statusInfo.status !== 'finished';
+        // Exclude canceled from "new" counts as well
+        return statusInfo.status !== 'inprogress' && statusInfo.status !== 'finished' && statusInfo.status !== 'canceled';
       }).length;
 
       const inprogressCount = (Array.isArray(handleData) ? handleData : []).filter((order: any) => extractHandleStatus(order) === 'inprogress').length;
@@ -473,8 +478,71 @@ export default function StaffIndex() {
   };
 
   const handleCancelOrder = (orderId: string) => {
-    console.log('Cancelling order:', orderId);
-    // Add your cancel order logic here
+    const targetOrder = orders.find((order) => order.id === orderId);
+
+    if (!targetOrder) {
+      console.warn('Could not find order in current list', orderId);
+      return;
+    }
+
+    (async () => {
+      try {
+        const canceledStatusId = await getStatusId('canceled');
+
+        if (!canceledStatusId) {
+          alert('Unable to locate the "Canceled" status. Please ensure it exists in Order Statuses.');
+          return;
+        }
+
+        let updateResponse: Response;
+
+        if (targetOrder.handleOrderId) {
+          updateResponse = await fetch(`/api/HandleOrder/${targetOrder.handleOrderId}`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              orderStatusId: canceledStatusId
+            })
+          });
+        } else {
+          updateResponse = await fetch('/api/HandleOrder', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              title: targetOrder.title ?? `Order ${orderId}`,
+              customerOrderId: orderId,
+              orderStatusId: canceledStatusId
+            })
+          });
+        }
+
+        if (!updateResponse.ok) {
+          const errorText = await updateResponse.text().catch(() => '');
+          throw new Error(errorText || `Failed to cancel handle order (${updateResponse.status})`);
+        }
+
+        setOrders((prev) => prev.filter((order) => order.id !== orderId));
+        setOrderCounts((prev) => ({
+          new: Math.max(prev.new - (activeFilter === 'new' ? 1 : 0), 0),
+          inprogress: Math.max(prev.inprogress - (activeFilter === 'inprogress' ? 1 : 0), 0),
+          finished: Math.max(prev.finished - (activeFilter === 'finished' ? 1 : 0), 0)
+        }));
+
+        await Promise.all([
+          fetchOrderCounts(),
+          fetchOrders(activeFilter)
+        ]);
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+        alert('Could not cancel the order. Please try again.');
+      }
+    })();
   };
 
   const handleOrderClick = (orderId: string) => {

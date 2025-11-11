@@ -157,6 +157,13 @@ public class OrderMonitorService : BackgroundService
             }
         }
 
+        // Exclude statuses that should not be shown publicly
+        orders = orders
+            .Where(o =>
+                !string.Equals(o.status, "Pending", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(o.status, "Canceled", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
         return new OrdersSnapshot(orders, pendingCustomerIds);
     }
 
