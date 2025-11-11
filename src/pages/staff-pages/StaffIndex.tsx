@@ -592,64 +592,37 @@ export default function StaffIndex() {
 
     const source = new EventSource('/api/sse/orders');
     let refreshTimeout: number | undefined;
-    let heartbeatInterval: number | undefined;
-    let lastRefreshAt = 0;
 
     const scheduleRefresh = () => {
-      const now = Date.now();
-      // Throttle to at most once per 500ms
-      if (now - lastRefreshAt < 500) {
-        if (refreshTimeout !== undefined) {
-          window.clearTimeout(refreshTimeout);
-        }
-        refreshTimeout = window.setTimeout(() => {
-          lastRefreshAt = Date.now();
-          fetchOrders(activeFilterRef.current);
-          fetchOrderCounts();
-        }, 500 - (now - lastRefreshAt));
-        return;
+      if (refreshTimeout !== undefined) {
+        window.clearTimeout(refreshTimeout);
       }
-      lastRefreshAt = now;
-      fetchOrders(activeFilterRef.current);
-      fetchOrderCounts();
+      refreshTimeout = window.setTimeout(() => {
+        fetchOrders(activeFilterRef.current);
+        fetchOrderCounts();
+      }, 200);
     };
 
-    source.onopen = () => {
-      scheduleRefresh();
-    };
-
-    source.onmessage = () => {
-      // Any snapshot emission should refresh lists/counts immediately (throttled)
-      scheduleRefresh();
+    source.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload?.type === 'snapshot') {
+          scheduleRefresh();
+        }
+      } catch {
+        // ignore parse errors
+      }
     };
 
     source.onerror = () => {
-      // On error, still try to refresh soon
-      scheduleRefresh();
+      // keep existing data; browser will try to reconnect
     };
-
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        scheduleRefresh();
-      }
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-
-    // Heartbeat fallback: refresh periodically in case SSE snapshots are missed
-    heartbeatInterval = window.setInterval(() => {
-      fetchOrders(activeFilterRef.current);
-      fetchOrderCounts();
-    }, 2000);
 
     return () => {
       source.close();
       if (refreshTimeout !== undefined) {
         window.clearTimeout(refreshTimeout);
       }
-      if (heartbeatInterval !== undefined) {
-        window.clearInterval(heartbeatInterval);
-      }
-      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [loading, isAuthorized, fetchOrderCounts, fetchOrders]);
 
