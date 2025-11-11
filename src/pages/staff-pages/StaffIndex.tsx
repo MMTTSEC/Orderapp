@@ -177,7 +177,7 @@ export default function StaffIndex() {
           handleResponse.json()
         ]);
 
-        const handleStatusByCustomerId: Record<string, { status: 'pending' | 'inprogress' | 'finished' | 'other'; handleOrderId?: string }> = {};
+        const handleStatusByCustomerId: Record<string, { status: 'pending' | 'inprogress' | 'finished' | 'canceled' | 'other'; handleOrderId?: string }> = {};
 
         if (Array.isArray(handleData)) {
           handleData.forEach((handle: any) => {
