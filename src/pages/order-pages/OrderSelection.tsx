@@ -496,7 +496,7 @@ export default function OrderSelection() {
           className={`tab-item ${activeTab === "food" ? "active" : ""}`}
           onClick={() => setActiveTab("food")}
         >
-          <i className="bi bi-stack"></i> Mat
+          <i className="bi bi-fork-knife"></i> Mat
         </button>
 
         <button
