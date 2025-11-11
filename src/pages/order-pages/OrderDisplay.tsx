@@ -30,9 +30,11 @@ export default function OrderDisplay() {
   const [landingIds, setLandingIds] = useState<Set<string>>(new Set());
   const [heroNum, setHeroNum] = useState<string | null>(null);
   const soundRef = useRef<HTMLAudioElement | null>(null);
+  const sseConnectedRef = useRef<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
+    
     // prepare notification sound from public folder
     try {
       if (!soundRef.current) {
@@ -91,11 +93,22 @@ export default function OrderDisplay() {
           } as OrderItem;
         });
 
-        if (isMounted) setOrders(hydrated.filter(Boolean));
+        // Filter to only show "In Progress" and "Finished" orders (exclude "Pending" and "Canceled")
+        const filtered = hydrated.filter((o) => {
+          const status = normalizeStatus(o.status);
+          return status === 'in_progress' || status === 'finished';
+        });
+
+        if (isMounted) {
+          // Set initial orders (SSE will override when it connects/sends updates)
+          setOrders(filtered);
+          setLoading(false);
+        }
       } catch (_) {
-        if (isMounted) setOrders([]);
-      } finally {
-        if (isMounted) setLoading(false);
+        if (isMounted) {
+          setOrders([]);
+          setLoading(false);
+        }
       }
     }
 
@@ -106,24 +119,71 @@ export default function OrderDisplay() {
   // Subscribe to SSE updates from backend and live-update orders
   useEffect(() => {
     const evt = new EventSource('/api/sse/orders');
+    
+    evt.onopen = () => {
+      sseConnectedRef.current = true;
+      setLoading(false);
+    };
+    
     evt.onmessage = (e) => {
       try {
         const payload = JSON.parse(e.data);
+        
+        // Backend sends: { type: "snapshot", orders: [...], pendingCustomerIds: [...] }
         if (payload?.type === 'snapshot' && Array.isArray(payload.orders)) {
-          const next: OrderItem[] = payload.orders.map((o: any) => ({ id: o.id, number: o.number, status: o.status }));
+          // Deduplicate by order number/id (in case backend sends duplicates)
+          const orderMap = new Map<string, OrderItem>();
+          
+          payload.orders.forEach((o: any) => {
+            const id = String(o.id || o.number || '');
+            const number = String(o.number || o.id || '');
+            const status = String(o.status || '');
+            
+            if (id && number && status) {
+              // Use number as key to deduplicate
+              const key = number;
+              if (!orderMap.has(key)) {
+                orderMap.set(key, {
+                  id: id,
+                  number: number,
+                  status: status
+                });
+              }
+            }
+          });
+          
+          const next: OrderItem[] = Array.from(orderMap.values());
+          
+          // Force update - SSE is the source of truth for real-time updates
+          console.log('SSE update received:', next.length, 'orders');
           setOrders(next);
           setLoading(false);
         }
-      } catch { /* ignore parse errors */ }
+      } catch (err) {
+        console.error('SSE parse error:', err, 'Data:', e.data);
+      }
     };
-    evt.onerror = () => {
+    
+    evt.onerror = (error) => {
+      console.error('SSE connection error:', error);
+      sseConnectedRef.current = false;
       // keep the existing data; browser will try to reconnect
     };
-    return () => { evt.close(); };
+    
+    return () => { 
+      sseConnectedRef.current = false;
+      evt.close(); 
+    };
   }, []);
 
   // Detect movements/entries for animations
   useEffect(() => {
+    if (orders.length === 0) {
+      // Initialize prev ref on first load
+      prevStatusByNumberRef.current = {};
+      return;
+    }
+
     const nextStatusByNumber: Record<string, string> = {};
     for (const o of orders) {
       const key = String(o.number ?? o.id ?? '');
@@ -132,55 +192,68 @@ export default function OrderDisplay() {
     }
 
     const prev = prevStatusByNumberRef.current;
-    const newPromoted = new Set(promotedIds);
-    const newEntered = new Set(enteredIds);
-    const newLanding = new Set(landingIds);
+    const hasPrevData = Object.keys(prev).length > 0;
+    
+    // Only detect changes if we have previous data (not initial load)
+    if (hasPrevData) {
+      const newPromoted = new Set(promotedIds);
+      const newEntered = new Set(enteredIds);
+      const newLanding = new Set(landingIds);
 
-    for (const [num, status] of Object.entries(nextStatusByNumber)) {
-      const prevStatus = prev[num];
-      if (!prevStatus) {
-        // new item
-        newEntered.add(num);
-      } else if (prevStatus !== status) {
-        const from = normalizeStatus(prevStatus);
-        const to = normalizeStatus(status);
-        if (from === 'pending' && to === 'in_progress') {
-          newEntered.add(num);
-        }
-        if (from === 'in_progress' && to === 'finished') {
-          // play notification sound
-          try { soundRef.current && soundRef.current.play().catch(() => {}); } catch {}
-          // Use overlay hero + landing; skip chip enlarge class
-          setHeroNum(num);
-          window.setTimeout(() => {
-            setHeroNum(null);
-            setLandingIds((old) => new Set([...Array.from(old), num]));
+      for (const [num, status] of Object.entries(nextStatusByNumber)) {
+        const prevStatus = prev[num];
+        if (!prevStatus) {
+          // new item appearing
+          const normalizedStatus = normalizeStatus(status);
+          if (normalizedStatus === 'in_progress' || normalizedStatus === 'finished') {
+            newEntered.add(num);
+          }
+        } else if (prevStatus !== status) {
+          const from = normalizeStatus(prevStatus);
+          const to = normalizeStatus(status);
+          
+          if (from === 'pending' && to === 'in_progress') {
+            newEntered.add(num);
+          }
+          
+          if (from === 'in_progress' && to === 'finished') {
+            // play notification sound
+            try { 
+              soundRef.current && soundRef.current.play().catch(() => {}); 
+            } catch {}
+            
+            // Show hero overlay animation
+            setHeroNum(num);
             window.setTimeout(() => {
-              setLandingIds((old2) => {
-                const c = new Set(old2);
-                c.delete(num);
-                return c;
-              });
-            }, 2200);
-          }, 3600);
+              setHeroNum(null);
+              setLandingIds((old) => new Set([...Array.from(old), num]));
+              window.setTimeout(() => {
+                setLandingIds((old2) => {
+                  const c = new Set(old2);
+                  c.delete(num);
+                  return c;
+                });
+              }, 2200);
+            }, 3600);
+          }
         }
+      }
+
+      if (newPromoted.size || newEntered.size || newLanding.size) {
+        setPromotedIds(newPromoted);
+        setEnteredIds(newEntered);
+        setLandingIds(newLanding);
+        // clear general promoted/entered flags after slow animation duration
+        const t = setTimeout(() => {
+          setPromotedIds(new Set());
+          setEnteredIds(new Set());
+        }, 8000);
+        return () => clearTimeout(t);
       }
     }
 
-    // Update prev snapshot immediately for robust diffing on next payload
+    // Update prev snapshot for next comparison
     prevStatusByNumberRef.current = nextStatusByNumber;
-
-    if (newPromoted.size || newEntered.size || newLanding.size) {
-      setPromotedIds(newPromoted);
-      setEnteredIds(newEntered);
-      setLandingIds(newLanding);
-      // clear general promoted/entered flags after slow animation duration
-      const t = setTimeout(() => {
-        setPromotedIds(new Set());
-        setEnteredIds(new Set());
-      }, 8000);
-      return () => clearTimeout(t);
-    }
   }, [orders]);
 
   const { inProgressIds, finishedIds } = useMemo(() => {

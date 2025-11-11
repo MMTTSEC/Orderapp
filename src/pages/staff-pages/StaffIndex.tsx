@@ -197,7 +197,7 @@ export default function StaffIndex() {
           if (!statusInfo) {
             return true;
           }
-          return statusInfo.status !== 'inprogress' && statusInfo.status !== 'finished' && statusInfo.status !== 'canceled';
+          return statusInfo.status === 'pending' || statusInfo.status === 'other';
         });
 
         mappedOrders = filteredCustomerOrders.map((order: any) => {
@@ -308,8 +308,8 @@ export default function StaffIndex() {
         if (!statusInfo) {
           return true;
         }
-        // Exclude canceled from "new" counts as well
-        return statusInfo.status !== 'inprogress' && statusInfo.status !== 'finished' && statusInfo.status !== 'canceled';
+        // Only count orders that are pending or have no recognized status
+        return statusInfo.status === 'pending' || statusInfo.status === 'other';
       }).length;
 
       const inprogressCount = (Array.isArray(handleData) ? handleData : []).filter((order: any) => extractHandleStatus(order) === 'inprogress').length;
@@ -592,35 +592,64 @@ export default function StaffIndex() {
 
     const source = new EventSource('/api/sse/orders');
     let refreshTimeout: number | undefined;
+    let heartbeatInterval: number | undefined;
+    let lastRefreshAt = 0;
 
     const scheduleRefresh = () => {
-      if (refreshTimeout !== undefined) {
-        window.clearTimeout(refreshTimeout);
+      const now = Date.now();
+      // Throttle to at most once per 500ms
+      if (now - lastRefreshAt < 500) {
+        if (refreshTimeout !== undefined) {
+          window.clearTimeout(refreshTimeout);
+        }
+        refreshTimeout = window.setTimeout(() => {
+          lastRefreshAt = Date.now();
+          fetchOrders(activeFilterRef.current);
+          fetchOrderCounts();
+        }, 500 - (now - lastRefreshAt));
+        return;
       }
-      refreshTimeout = window.setTimeout(() => {
-        fetchOrders(activeFilterRef.current);
-        fetchOrderCounts();
-      }, 200);
+      lastRefreshAt = now;
+      fetchOrders(activeFilterRef.current);
+      fetchOrderCounts();
     };
 
-    source.onmessage = (event) => {
-      try {
-        const payload = JSON.parse(event.data);
-        if (payload?.type === 'snapshot') {
-          scheduleRefresh();
-        }
-      } catch {
-      }
+    source.onopen = () => {
+      scheduleRefresh();
+    };
+
+    source.onmessage = () => {
+      // Any snapshot emission should refresh lists/counts immediately (throttled)
+      scheduleRefresh();
     };
 
     source.onerror = () => {
+      // On error, still try to refresh soon
+      scheduleRefresh();
     };
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        scheduleRefresh();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    // Heartbeat fallback: refresh periodically in case SSE snapshots are missed
+    heartbeatInterval = window.setInterval(() => {
+      fetchOrders(activeFilterRef.current);
+      fetchOrderCounts();
+    }, 2000);
 
     return () => {
       source.close();
       if (refreshTimeout !== undefined) {
         window.clearTimeout(refreshTimeout);
       }
+      if (heartbeatInterval !== undefined) {
+        window.clearInterval(heartbeatInterval);
+      }
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [loading, isAuthorized, fetchOrderCounts, fetchOrders]);
 
