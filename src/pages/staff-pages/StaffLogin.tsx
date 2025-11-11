@@ -44,8 +44,6 @@ export default function StaffLogin() {
 
     const apiEndpoint = '/api/auth/login';
 
-    console.log('Attempting to log in with payload:', payload);
-
     try {
       const response = await fetch(apiEndpoint, {
         method: 'POST',
@@ -57,17 +55,14 @@ export default function StaffLogin() {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log('Login successful!', data);
         navigate('/staff');
       } else {
-        console.error('Login failed with status:', response.status);
         const errorText = await response.text();
-        console.error('Error details:', errorText);
+        console.error('Login failed:', response.status, errorText);
         alert(`Login Failed: ${response.status}`);
       }
     } catch (error) {
-      console.error('Network or other error during login:', error);
+      console.error('Network error during login:', error);
       alert('An unexpected error occurred. Please check your network.');
     }
   };

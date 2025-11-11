@@ -30,7 +30,6 @@ export default function OrderDisplay() {
   const [landingIds, setLandingIds] = useState<Set<string>>(new Set());
   const [heroNum, setHeroNum] = useState<string | null>(null);
   const soundRef = useRef<HTMLAudioElement | null>(null);
-  const sseConnectedRef = useRef<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -121,7 +120,6 @@ export default function OrderDisplay() {
     const evt = new EventSource('/api/sse/orders');
     
     evt.onopen = () => {
-      sseConnectedRef.current = true;
       setLoading(false);
     };
     
@@ -129,51 +127,24 @@ export default function OrderDisplay() {
       try {
         const payload = JSON.parse(e.data);
         
-        // Backend sends: { type: "snapshot", orders: [...], pendingCustomerIds: [...] }
         if (payload?.type === 'snapshot' && Array.isArray(payload.orders)) {
-          // Deduplicate by order number/id (in case backend sends duplicates)
-          const orderMap = new Map<string, OrderItem>();
+          const next: OrderItem[] = payload.orders.map((o: any) => ({ 
+            id: o.id || o.number, 
+            number: o.number || o.id, 
+            status: o.status 
+          }));
           
-          payload.orders.forEach((o: any) => {
-            const id = String(o.id || o.number || '');
-            const number = String(o.number || o.id || '');
-            const status = String(o.status || '');
-            
-            if (id && number && status) {
-              // Use number as key to deduplicate
-              const key = number;
-              if (!orderMap.has(key)) {
-                orderMap.set(key, {
-                  id: id,
-                  number: number,
-                  status: status
-                });
-              }
-            }
-          });
-          
-          const next: OrderItem[] = Array.from(orderMap.values());
-          
-          // Force update - SSE is the source of truth for real-time updates
-          console.log('SSE update received:', next.length, 'orders');
           setOrders(next);
           setLoading(false);
         }
-      } catch (err) {
-        console.error('SSE parse error:', err, 'Data:', e.data);
-      }
+      } catch { /* ignore parse errors */ }
     };
     
-    evt.onerror = (error) => {
-      console.error('SSE connection error:', error);
-      sseConnectedRef.current = false;
+    evt.onerror = () => {
       // keep the existing data; browser will try to reconnect
     };
     
-    return () => { 
-      sseConnectedRef.current = false;
-      evt.close(); 
-    };
+    return () => { evt.close(); };
   }, []);
 
   // Detect movements/entries for animations
