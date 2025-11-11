@@ -121,10 +121,45 @@ export default function OrderPayment() {
         throw new Error("Inga produkter med giltiga ID:n hittades.");
       }
 
+      // Current time in Sweden (Europe/Stockholm) as ISO 8601 with proper offset
       const now = new Date();
-      const orderPlacedAt = now.toISOString().split('T')[0] + 'T' + 
-        String(now.getHours()).padStart(2, '0') + ':' + 
-        String(now.getMinutes()).padStart(2, '0') + ':00Z';
+      const parts = new Intl.DateTimeFormat('sv-SE', {
+        timeZone: 'Europe/Stockholm',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).formatToParts(now);
+
+      const get = (type: Intl.DateTimeFormatPartTypes) => (parts.find(p => p.type === type)?.value || '').padStart(2, '0');
+      const yyyy = get('year');
+      const MM = get('month');
+      const dd = get('day');
+      const HH = get('hour');
+      const mm = get('minute');
+      const ss = get('second');
+
+      let offset = 'Z';
+      try {
+        const tzParts = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Europe/Stockholm',
+          hour: '2-digit',
+          timeZoneName: 'shortOffset'
+        }).formatToParts(now);
+        const tzName = tzParts.find(p => p.type === 'timeZoneName')?.value || '';
+        const match = tzName.match(/GMT([+-]\d{1,2})/);
+        if (match) {
+          const sign = match[1][0];
+          const hours = match[1].slice(1).padStart(2, '0');
+          const mins = '00';
+          offset = `${sign}${hours}:${mins}`;
+        }
+      } catch {}
+
+      const orderPlacedAt = `${yyyy}-${MM}-${dd}T${HH}:${mm}:${ss}${offset}`;
 
       const flatProductQuantityIds = productQuantityIds.filter(id => id && typeof id === 'string');
       
