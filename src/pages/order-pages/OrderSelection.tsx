@@ -68,12 +68,12 @@ export default function OrderSelection() {
     let isMounted = true;
 
     const sizeSynonyms: Record<string, string> = {
-      stor: "Large",
-      large: "Large",
-      liten: "Small",
-      small: "Small",
-      mellan: "Medium",
-      medium: "Medium",
+      stor: "Stor",
+      large: "Stor",
+      liten: "Liten",
+      small: "Liten",
+      mellan: "Mellan",
+      medium: "Mellan",
       standard: "Standard",
       "no size": "Standard"
     };
@@ -208,7 +208,7 @@ export default function OrderSelection() {
         sizeAmounts[sizeLabel] = 0;
       }
       item.sizeAmounts = sizeAmounts;
-      if (!item.selectedSize || sizeLabel.toLowerCase() === "small") {
+      if (!item.selectedSize || sizeLabel.toLowerCase() === "liten") {
         item.selectedSize = sizeLabel;
       }
       item.price = undefined;
@@ -294,7 +294,7 @@ export default function OrderSelection() {
               if (sizeAmounts[size.size] === undefined) sizeAmounts[size.size] = 0;
             });
             item.sizeAmounts = sizeAmounts;
-            const smallOption = item.sizes.find(size => size.size.toLowerCase() === "small");
+            const smallOption = item.sizes.find(size => size.size.toLowerCase() === "liten");
             if (smallOption) {
               item.selectedSize = smallOption.size;
             } else {
