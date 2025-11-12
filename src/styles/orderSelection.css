@@ -80,7 +80,7 @@
 /* Item card styling */
 .item-card {
   flex: 1 1;
-  min-width: 400px;
+  min-width: 450px;
   max-width: 24%;
   border-radius: 8px;
   overflow: hidden;
