@@ -668,39 +668,6 @@ npm run restore     # Reset to seed state
 
 ---
 
-## 🔧 Troubleshooting
-
-### Port Already in Use
-
-If port 5001 or 5173 is busy:
-
-**Windows (PowerShell):**
-```powershell
-# For port 5001
-Get-Process -Id (Get-NetTCPConnection -LocalPort 5001).OwningProcess | Stop-Process -Force
-
-# For port 5173
-Get-Process -Id (Get-NetTCPConnection -LocalPort 5173).OwningProcess | Stop-Process -Force
-```
-
-**Windows (Command Prompt):**
-```cmd
-# For port 5001
-for /f "tokens=5" %a in ('netstat -aon ^| find ":5001" ^| find "LISTENING"') do taskkill /F /PID %a
-
-# For port 5173
-for /f "tokens=5" %a in ('netstat -aon ^| find ":5173" ^| find "LISTENING"') do taskkill /F /PID %a
-```
-
-### Database Issues
-
-Reset to a clean (initial / last saved) state:
-```bash
-npm run restore
-```
-
----
-
 ## 📁 Project Structure
 
 ```
@@ -731,10 +698,3 @@ Orderapp/
 
 ---
 
-## 📝 Sample Data
-
-The seed includes:
-- **Content Types:** Product, Size, OrderStatus, ProductQuantity, CustomerOrder, HandleOrder
-- **Sample Products:** Various menu items
-- **Roles:** Administrator, Customer, Staff, Anonymous, and others
-- **Default Permissions:** Examples showing how to configure API access
