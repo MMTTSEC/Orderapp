@@ -316,21 +316,7 @@ Content-Type: application/json
   "title": "Pizza"
 }
 ```
-
-**Supported Field Types:**
-
-When creating or updating content, use the **same format** you receive from `GET /api/{contentType}` (not the raw format from `/api/raw/{contentType}`). The API automatically unwraps single-property fields for cleaner JSON:
-
-- **TextField** - Plain string: `"category": "Meal"`
-- **NumericField** - Plain number: `"price": 99.50`
-- **BooleanField** - Plain boolean: `"isActive": true`
-- **DateField** - ISO 8601 string: `"createdDate": "2020-01-15T00:00:00Z"`
-- **DateTimeField** - ISO 8601 string: `"createdAt": "2025-10-28T10:30:00Z"`
-- **HtmlField** - Plain HTML string: `"description": "<p>A delicious burger</p>"`
-- **MarkdownField** - Plain markdown string: `"bio": "# Pizza\nA classic dish"`
-
-Multi-property fields (like LinkField and MediaField) are best created through the admin UI.
-
+---
 #### Update Product
 
 ```bash
