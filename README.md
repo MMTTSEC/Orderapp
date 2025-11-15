@@ -84,7 +84,7 @@ The application has three distinct workflows:
 
     * *Technical note:* The owner publishes the static types (`Size`, `OrderStatus`) and the product catalog (`Product`).
 
-2.  **Customer Orders (Guste):**
+2.  **Customer Orders (Guest):**
 
     * The customer navigates linearly through selection of dining location, menu, shopping cart, confirmation, and payment.
 
