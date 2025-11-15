@@ -2,22 +2,14 @@
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-MMTTSEC%2FOrderapp-blue?style=flat&logo=github)](https://github.com/MMTTSEC/Orderapp)
 
-[![Figma Mockup](https://img.shields.io/badge/Figma-Mockup-lightgrey?style=flat&logo=figma)](https://www.figma.com/design/n4Sq9ITbWUrMCwBSkKV3gW/recterang?node-id=0-1&t=akWArK7oVzd9GPoP-1)
-
 A food ordering system designed to be implemented on screens at the restaurant entrance. The application aims to streamline the ordering process for customers and simplify order management for staff.
 
----
 
-## 👥 Team Members
-
-| Name | GitHub Username | Role |
-| :--- | :--- | :--- |
-| Pontus Flodström | @Zenty | Developer |
-| Fanual Abrahm Gebreyesus | @mycookie5 | Developer  |
-| Mohammed Thabit | @MMTTSEC | Developer |
-| Muayad Suleiman | @MSU98 | Developer |
+# Figma Mockup
+<img width="901" height="922" alt="image" src="https://github.com/user-attachments/assets/0fd93dd3-e0fd-4f51-ad74-0355d3811871" />
 
 ---
+
 
 ## 💡 Application Functionality
 
@@ -43,7 +35,7 @@ The application is divided into two main views: **Customer View** (ordering scre
 
     * **Return:** Redirected back to index after ordering (with updated queue list).
 
-### 👩‍🍳 Staff Management (Admin)
+### 👩‍🍳 Staff Management 
 
 * **Secret Login:** Separate page for staff login (`/staff`).
 
@@ -129,27 +121,6 @@ The project uses a **client-server architecture** where a **React frontend** com
 
 ---
 
-The project centralizes route definitions in the file src/routes.ts. Each page component exports a static property called route (for example: { path: '/staff', index: 10 }). The routes.ts file then performs the following main steps:
-
-    Collects all page components in a pages array.
-
-    Maps each component to a Route object: { element, ...component.route } where element is React.createElement(component).
-
-    Sorts the resulting Route array based on the index property (missing index is treated as 0).
-
-    Exports the compiled routes as default export and a small runtime manifest called compiledRoutesInfo.
-
-    Example output (illustrative – actual paths come from each component's static route):
-
-```json
-[
-  { "name": "OrderIndex", "path": "/", "index": 0 },
-  { "name": "StaffLogin", "path": "/staff/login" },
-]
-```
-
----
-
 ## 🚀 Installation and Start
 
 ### Prerequisites
@@ -184,20 +155,6 @@ After both servers have started, you can open:
 - **Frontend (Customer View)**: http://localhost:5173
 - **Backend API**: http://localhost:5001/api
 - **Admin UI**: http://localhost:5001/admin
-
-### Alternative commands
-
-```bash
-# Start only frontend (for development)
-npm run dev
-
-# Start only backend
-npm run backend
-
-# Build for production
-npm run build
-```
-
 ---
 
 ## 🔐 Authentication System
