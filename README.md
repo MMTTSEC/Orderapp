@@ -4,12 +4,11 @@
 
 A food ordering system designed to be implemented on screens at the restaurant entrance. The application aims to streamline the ordering process for customers and simplify order management for staff.
 
-
 # Figma Mockup
+
 <img width="901" height="922" alt="image" src="https://github.com/user-attachments/assets/0fd93dd3-e0fd-4f51-ad74-0355d3811871" />
 
 ---
-
 
 ## 💡 Application Functionality
 
@@ -17,43 +16,43 @@ The application is divided into two main views: **Customer View** (ordering scre
 
 ### 🛒 Customer Functionality
 
-* **Order Queue/Status:** Clear overview on the index page of ongoing and completed orders (queue list).
+- **Order Queue/Status:** Clear overview on the index page of ongoing and completed orders (queue list).
 
-* **Ordering Flow:**
+- **Ordering Flow:**
 
-    * Choose **Dine In** / **Take Away**.
+  - Choose **Dine In** / **Take Away**.
 
-    * Browse menu via tabs: **Meal**, **Drink**, **Sides**.
+  - Browse menu via tabs: **Meal**, **Drink**, **Sides**.
 
-    * **Shopping Cart:** Displayed dynamically at the bottom of the page. The customer can modify (add/remove/change quantity) before payment.
+  - **Shopping Cart:** Displayed dynamically at the bottom of the page. The customer can modify (add/remove/change quantity) before payment.
 
-    * **Confirmation:** Page to review the order before payment.
+  - **Confirmation:** Page to review the order before payment.
 
-    * **Receipt:** Eco-friendly option (receipt/no receipt).
+  - **Receipt:** Eco-friendly option (receipt/no receipt).
 
-    * **Queue Number:** Generated upon completed payment and reset daily.
+  - **Queue Number:** Generated upon completed payment and reset daily.
 
-    * **Return:** Redirected back to index after ordering (with updated queue list).
+  - **Return:** Redirected back to index after ordering (with updated queue list).
 
-### 👩‍🍳 Staff Management 
+### 👩‍🍳 Staff Management
 
-* **Secret Login:** Separate page for staff login (`/staff`).
+- **Secret Login:** Separate page for staff login (`/staff`).
 
-* **Order Management:**
+- **Order Management:**
 
-    * Overview of all orders, sorted in tabs: **New**, **In Progress**, and **Completed**.
+  - Overview of all orders, sorted in tabs: **New**, **In Progress**, and **Completed**.
 
-    * Detail view with checklist for each order item (to mark what is prepared).
+  - Detail view with checklist for each order item (to mark what is prepared).
 
-    * Mark order as **'Ready'** when all items are checked.
+  - Mark order as **'Ready'** when all items are checked.
 
-    * Remove completed orders (when the customer has picked up the food).
+  - Remove completed orders (when the customer has picked up the food).
 
-    * **Order History:** View all delivered/completed orders, categorized by day.
+  - **Order History:** View all delivered/completed orders, categorized by day.
 
 ---
 
-## ⚙️ Technical Documentation 
+## ⚙️ Technical Documentation
 
 This section fulfills the requirement for technical documentation regarding content structure, user roles, publishing workflow, and integration between frontend and CMS.
 
@@ -61,14 +60,14 @@ This section fulfills the requirement for technical documentation regarding cont
 
 Content is managed in Orchard Core CMS with the following Content Types, which define the application's data structure:
 
-| Content Type | Description | Dependencies |
-| :--- | :--- | :--- |
-| **Size** | Defines static sizes (e.g., Small, Medium, Large). | - |
-| **Product** | Main catalog for menu items (Name, Category, Price, Image, reference to `Size`). | `Size` |
-| **OrderStatus** | Static lookup list for order status (Pending, In progress, Completed, Cancelled). | - |
-| **ProductQuantity** | Intermediate type that holds a specific product and the ordered quantity. Necessary for customers to order the same product multiple times. | `Product` |
-| **CustomerOrder** | The complete customer order (Order number, Timestamp, list of `Product Quantity` IDs). | `ProductQuantity` |
-| **HandleOrder** | Used by staff. Links a `CustomerOrder` to its current `OrderStatus`. | `CustomerOrder`, `OrderStatus` |
+| Content Type        | Description                                                                                                                                 | Dependencies                   |
+| :------------------ | :------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------------- |
+| **Size**            | Defines static sizes (e.g., Small, Medium, Large).                                                                                          | -                              |
+| **Product**         | Main catalog for menu items (Name, Category, Price, Image, reference to `Size`).                                                            | `Size`                         |
+| **OrderStatus**     | Static lookup list for order status (Pending, In progress, Completed, Cancelled).                                                           | -                              |
+| **ProductQuantity** | Intermediate type that holds a specific product and the ordered quantity. Necessary for customers to order the same product multiple times. | `Product`                      |
+| **CustomerOrder**   | The complete customer order (Order number, Timestamp, list of `Product Quantity` IDs).                                                      | `ProductQuantity`              |
+| **HandleOrder**     | Used by staff. Links a `CustomerOrder` to its current `OrderStatus`.                                                                        | `CustomerOrder`, `OrderStatus` |
 
 ### 🔄 Publishing Workflow
 
@@ -76,48 +75,48 @@ The application has three distinct workflows:
 
 1.  **Orchard CMS (Owner/Admin):**
 
-    * The owner logs into Orchard CMS backend.
+    - The owner logs into Orchard CMS backend.
 
-    * Creates/updates the menu by adding new **Product** items.
+    - Creates/updates the menu by adding new **Product** items.
 
-    * Creates and manages users/credentials for staff.
+    - Creates and manages users/credentials for staff.
 
-    * *Technical note:* The owner publishes the static types (`Size`, `OrderStatus`) and the product catalog (`Product`).
+    - _Technical note:_ The owner publishes the static types (`Size`, `OrderStatus`) and the product catalog (`Product`).
 
-2.  **Customer Orders (Guste):**
+2.  **Customer Orders (Guest):**
 
-    * The customer navigates linearly through selection of dining location, menu, shopping cart, confirmation, and payment.
+    - The customer navigates linearly through selection of dining location, menu, shopping cart, confirmation, and payment.
 
-    * Upon ordering, the following are dynamically generated and published:
+    - Upon ordering, the following are dynamically generated and published:
 
-        * New **ProductQuantity** entries.
+      - New **ProductQuantity** entries.
 
-        * A new **CustomerOrder** that links these quantities.
+      - A new **CustomerOrder** that links these quantities.
 
-    * *Technical note:* The customer indirectly creates content items through the purchase transaction.
+    - _Technical note:_ The customer indirectly creates content items through the purchase transaction.
 
 3.  **Staff Page (Staff):**
 
-    * Staff logs in on the `/staff` page.
+    - Staff logs in on the `/staff` page.
 
-    * Selects an order (`New`) and clicks "Accept" (moved to `In Progress`).
+    - Selects an order (`New`) and clicks "Accept" (moved to `In Progress`).
 
-    * Manages the order by checking items in the detail view.
+    - Manages the order by checking items in the detail view.
 
-    * Marks order as **'Order Ready'** (moved to `Completed`).
+    - Marks order as **'Order Ready'** (moved to `Completed`).
 
-    * *Technical note:* Staff updates the linked **HandleOrder** item to change `OrderStatus`.
+    - _Technical note:_ Staff updates the linked **HandleOrder** item to change `OrderStatus`.
 
 ### 🤝 Integration between Frontend (React) and CMS (Orchard Core)
 
 The project uses a **client-server architecture** where a **React frontend** communicates with **OrchardCore CMS** via a **REST API** and **Server-Sent Events (SSE)**.
 
-| Technology | Role |
-| :--- | :--- |
-| **React Frontend** (Port 5173) | Handles user interface, order logic, and data display. |
-| **OrchardCore CMS** (Port 5001) | Backend, database, and API layer. Handles all data (products, orders, status). |
-| **REST API** | Handles CRUD operations (Get, Create, Update) for all Content Types (`/api/expand/{contentType}`, `/api/{contentType}`). |
-| **SSE** (`/api/sse/orders`) | Provides **real-time updates** of order status to both the Order Display screen and Staff View, without the client needing to reload or continuously poll. |
+| Technology                      | Role                                                                                                                                                       |
+| :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **React Frontend** (Port 5173)  | Handles user interface, order logic, and data display.                                                                                                     |
+| **OrchardCore CMS** (Port 5001) | Backend, database, and API layer. Handles all data (products, orders, status).                                                                             |
+| **REST API**                    | Handles CRUD operations (Get, Create, Update) for all Content Types (`/api/expand/{contentType}`, `/api/{contentType}`).                                   |
+| **SSE** (`/api/sse/orders`)     | Provides **real-time updates** of order status to both the Order Display screen and Staff View, without the client needing to reload or continuously poll. |
 
 ---
 
@@ -144,6 +143,7 @@ npm start
 ```
 
 This command will:
+
 - Automatically restore the database from seed (first time only)
 - Start Orchard Core backend on http://localhost:5001
 - Start Vite dev server (React frontend) on http://localhost:5173
@@ -153,8 +153,11 @@ This command will:
 After both servers have started, you can open:
 
 - **Frontend (Customer View)**: http://localhost:5173
+- **Frontend (Order Display Page)**: http://localhost:5173/order-display
+- **Frontend (Staff View)**: http://localhost:5173/staff
 - **Backend API**: http://localhost:5001/api
 - **Admin UI**: http://localhost:5001/admin
+
 ---
 
 ## 🔐 Authentication System
@@ -174,6 +177,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -191,6 +195,7 @@ GET /api/auth/login
 ```
 
 **Response (authenticated):**
+
 ```json
 {
   "isAuthenticated": true,
@@ -200,6 +205,7 @@ GET /api/auth/login
 ```
 
 **Response (not authenticated):**
+
 ```json
 {
   "isAuthenticated": false,
@@ -215,6 +221,7 @@ DELETE /api/auth/login
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Logged out successfully"
@@ -238,6 +245,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "username": "newuser",
@@ -267,13 +275,14 @@ GET /api/Product
 ```
 
 **Response:**
+
 ```json
 [
   {
     "id": "4h72v3vvnffvzyjjyny8xgc2xz",
     "title": "Burger",
     "category": "Meal",
-    "price": 99.50,
+    "price": 99.5,
     "sizeId": "4hef7jjdb26sdxshq3ddg87mm1"
   }
 ]
@@ -286,12 +295,13 @@ GET /api/Product/4h72v3vvnffvzyjjyny8xgc2xz
 ```
 
 **Response:**
+
 ```json
 {
   "id": "4h72v3vvnffvzyjjyny8xgc2xz",
   "title": "Burger",
   "category": "Meal",
-  "price": 99.50,
+  "price": 99.5,
   "sizeId": "4hef7jjdb26sdxshq3ddg87mm1"
 }
 ```
@@ -310,13 +320,16 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "id": "4new1234example5678id",
   "title": "Pizza"
 }
 ```
+
 ---
+
 #### Update Product
 
 ```bash
@@ -330,6 +343,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "id": "4new1234example5678id",
@@ -346,6 +360,7 @@ DELETE /api/Product/4new1234example5678id
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Item deleted successfully"
@@ -357,6 +372,7 @@ DELETE /api/Product/4new1234example5678id
 The REST API provides three different endpoint variants for GET requests, each serving different use cases:
 
 #### Standard Endpoints: `/api/{contentType}`
+
 Clean, minimal JSON structure with only the essential fields.
 
 ```bash
@@ -365,6 +381,7 @@ GET /api/Product/{id}
 ```
 
 #### Expand Endpoints: `/api/expand/{contentType}`
+
 Same clean structure, but with relationship fields automatically populated.
 
 ```bash
@@ -373,6 +390,7 @@ GET /api/expand/Product/{id}
 ```
 
 #### Raw Endpoints: `/api/raw/{contentType}`
+
 Returns the raw Orchard Core ContentItem structure without cleanup or population. Useful for debugging, advanced queries, or when you need access to Orchard Core metadata.
 
 ```bash
@@ -381,6 +399,7 @@ GET /api/raw/Product/{id}
 ```
 
 **Raw endpoint response includes:**
+
 - Full ContentItem structure
 - Orchard Core metadata (ContentItemId, ContentItemVersionId, ContentType, etc.)
 - All part and field data in Orchard's native format
@@ -400,13 +419,14 @@ GET /api/expand/Product
 ```
 
 **Response:**
+
 ```json
 [
   {
     "id": "40sk48hnkka1tsfdkhhk6vprch",
     "title": "Burger",
     "category": "Meal",
-    "price": 99.50,
+    "price": 99.5,
     "sizeId": "4237v01g4sxw41mybx97wg6adf",
     "size": {
       "id": "4237v01g4sxw41mybx97wg6adf",
@@ -417,18 +437,20 @@ GET /api/expand/Product
 ```
 
 **Using standard endpoint (no expansion):**
+
 ```bash
 GET /api/Product
 ```
 
 Returns only the size ID (relationship not expanded):
+
 ```json
 [
   {
     "id": "40sk48hnkka1tsfdkhhk6vprch",
     "title": "Burger",
     "category": "Meal",
-    "price": 99.50,
+    "price": 99.5,
     "sizeId": "4237v01g4sxw41mybx97wg6adf"
   }
 ]
@@ -443,6 +465,7 @@ The REST API supports powerful query parameters for filtering, sorting, and pagi
 Use the `where` parameter to filter results. Supports deep property paths with dot notation.
 
 **Supported Operators:**
+
 - `=` - Equals
 - `!=` - Not equals
 - `>` - Greater than
@@ -523,6 +546,7 @@ GET /api/expand/Product?where=category=Meal AND price>100&orderby=-title&limit=1
 ```
 
 This query:
+
 1. Expands the size relationship
 2. Filters for meals with price greater than 100
 3. Sorts by title (descending)
@@ -546,6 +570,7 @@ Access to REST endpoints is controlled by **RestPermissions** - a custom content
 ### Example Permission
 
 **Title:** "Anonymous can view products"
+
 - **Roles:** `Anonymous`
 - **Content Types:** `Product,Size`
 - **REST Methods:** `GET`
@@ -610,6 +635,7 @@ npm run backend
 ### When to Save
 
 As a teacher/maintainer, run `npm run save` after making changes you want students to have:
+
 - Adding new content types
 - Creating sample data
 - Modifying roles or permissions
@@ -622,10 +648,12 @@ Students will get these changes when they clone the repo and run `npm start`.
 ## 🔐 Login Credentials
 
 ### Admin User
+
 - **Username:** `tom`
 - **Password:** `Abcd1234!`
 
 ### Staff Login
+
 Staff logs in via the `/staff` page with their personal login credentials.
 
 ---
@@ -633,21 +661,25 @@ Staff logs in via the `/staff` page with their personal login credentials.
 ## 🛠️ Development Workflow
 
 ### Frontend Development
+
 ```bash
 npm run dev          # Start only Vite dev server
 ```
 
 ### Backend Development
+
 ```bash
 npm run backend      # Start only backend server
 ```
 
 ### Full Stack
+
 ```bash
 npm start           # Start both frontend and backend
 ```
 
 ### Reset Database
+
 ```bash
 npm run restore     # Reset to seed state
 ```
@@ -683,4 +715,3 @@ Orderapp/
 ```
 
 ---
-
