@@ -9,6 +9,30 @@ A food ordering system designed to be implemented on screens at the restaurant e
 <img width="901" height="922" alt="image" src="https://github.com/user-attachments/assets/0fd93dd3-e0fd-4f51-ad74-0355d3811871" />
 
 ---
+## 📸 Screenshots
+
+## Order
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/059893ea-4805-48c1-95c0-383f8206d278" width="200">
+  <img src="https://github.com/user-attachments/assets/172ea48f-38b1-434a-be49-7480d8e583d9" width="200">
+  <img src="https://github.com/user-attachments/assets/1bfb56a0-238b-4506-99df-be86b52d287b" width="200">
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2fa80f3e-fda2-4884-95ba-0bae79d9d75a" width="200">
+  <img src="https://github.com/user-attachments/assets/f9bbf373-6e81-4cf8-b4f1-ac7531d43f6c" width="200">
+  <img src="https://github.com/user-attachments/assets/a770a181-f4c0-4a7f-b0b8-ea128c59544a" width="200">
+</p>
+
+
+
+
+
+
+
+
+
+---
 
 ## 💡 Application Functionality
 
