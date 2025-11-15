@@ -53,7 +53,7 @@ The application is divided into two main views: **Customer View** (ordering scre
 
 ---
 
-## ⚙️ Technical Documentation (LR 15)
+## ⚙️ Technical Documentation 
 
 This section fulfills the requirement for technical documentation regarding content structure, user roles, publishing workflow, and integration between frontend and CMS.
 
@@ -84,7 +84,7 @@ The application has three distinct workflows:
 
     * *Technical note:* The owner publishes the static types (`Size`, `OrderStatus`) and the product catalog (`Product`).
 
-2.  **Customer Orders (User):**
+2.  **Customer Orders (Guste):**
 
     * The customer navigates linearly through selection of dining location, menu, shopping cart, confirmation, and payment.
 
