@@ -1,41 +1,206 @@
-# Vite + React + Orchard Core REST API
+# 🍔 Val - Restaurant Service / Order Food
 
-A full-stack application combining a modern React frontend (Vite + TypeScript) with an Orchard Core CMS backend exposing a custom REST API with role-based permissions.
+[![GitHub Repo](https://img.shields.io/badge/GitHub-MMTTSEC%2FOrderapp-blue?style=flat&logo=github)](https://github.com/MMTTSEC/Orderapp)
 
-## Features
+[![Figma Mockup](https://img.shields.io/badge/Figma-Mockup-lightgrey?style=flat&logo=figma)](https://www.figma.com/design/n4Sq9ITbWUrMCwBSkKV3gW/recterang?node-id=0-1&t=akWArK7oVzd9GPoP-1)
 
-- 🔐 **Session-based Authentication** - Login/logout/register with username/password
-- 🛡️ **Fine-grained Permissions System** - Control API access per user role, content type, and HTTP method
-- 🎨 **Dynamic Admin UI** - Enhanced Orchard admin with JavaScript-powered field editors
-- 📦 **Seed System** - Database seeding for easy project setup and reset
-- ⚡ **REST API** - Full CRUD operations with relationship expansion, filtering, sorting, and pagination
+A food ordering system designed to be implemented on screens at the restaurant entrance. The application aims to streamline the ordering process for customers and simplify order management for staff.
 
-# Important
-The admin user name is "tom" with the password "Abcd1234!"
+---
 
-## Quick Start
+## 👥 Team Members
 
-1. **Install dependencies**
-   ```bash
-   npm install
-   ```
+| Name | GitHub Username | Role |
+| :--- | :--- | :--- |
+| Pontus Flodström | @Zenty | Developer |
+| Fanual Abrahm Gebreyesus | @mycookie5 | Developer  |
+| Mohammed Thabit | @MMTTSEC | Developer |
+| Muayad Suleiman | @MSU98 | Developer |
 
-2. **Start the application**
-   ```bash
-   npm start
-   ```
+---
 
-   This will:
-   - Auto-restore the database from seed (first time only)
-   - Start the Orchard Core backend on http://localhost:5001
-   - Start the Vite dev server on http://localhost:5173
+## 💡 Application Functionality
 
-3. **Access the application**
-   - **Frontend**: http://localhost:5173
-   - **Backend API**: http://localhost:5001/api
-   - **Admin UI**: http://localhost:5001/admin (username: `admin`, password: `Password123!`)
+The application is divided into two main views: **Customer View** (ordering screen) and **Staff View** (order management).
 
-## Authentication System
+### 🛒 Customer Functionality
+
+* **Order Queue/Status:** Clear overview on the index page of ongoing and completed orders (queue list).
+
+* **Ordering Flow:**
+
+    * Choose **Dine In** / **Take Away**.
+
+    * Browse menu via tabs: **Meal**, **Drink**, **Sides**.
+
+    * **Shopping Cart:** Displayed dynamically at the bottom of the page. The customer can modify (add/remove/change quantity) before payment.
+
+    * **Confirmation:** Page to review the order before payment.
+
+    * **Receipt:** Eco-friendly option (receipt/no receipt).
+
+    * **Queue Number:** Generated upon completed payment and reset daily.
+
+    * **Return:** Redirected back to index after ordering (with updated queue list).
+
+### 👩‍🍳 Staff Management (Admin)
+
+* **Secret Login:** Separate page for staff login (`/staff`).
+
+* **Order Management:**
+
+    * Overview of all orders, sorted in tabs: **New**, **In Progress**, and **Completed**.
+
+    * Detail view with checklist for each order item (to mark what is prepared).
+
+    * Mark order as **'Ready'** when all items are checked.
+
+    * Remove completed orders (when the customer has picked up the food).
+
+    * **Order History:** View all delivered/completed orders, categorized by day.
+
+---
+
+## ⚙️ Technical Documentation (LR 15)
+
+This section fulfills the requirement for technical documentation regarding content structure, user roles, publishing workflow, and integration between frontend and CMS.
+
+### 🧱 Content Structure and Models (Orchard Core CMS)
+
+Content is managed in Orchard Core CMS with the following Content Types, which define the application's data structure:
+
+| Content Type | Description | Dependencies |
+| :--- | :--- | :--- |
+| **Size** | Defines static sizes (e.g., Small, Medium, Large). | - |
+| **Product** | Main catalog for menu items (Name, Category, Price, Image, reference to `Size`). | `Size` |
+| **OrderStatus** | Static lookup list for order status (Pending, In progress, Completed, Cancelled). | - |
+| **ProductQuantity** | Intermediate type that holds a specific product and the ordered quantity. Necessary for customers to order the same product multiple times. | `Product` |
+| **CustomerOrder** | The complete customer order (Order number, Timestamp, list of `Product Quantity` IDs). | `ProductQuantity` |
+| **HandleOrder** | Used by staff. Links a `CustomerOrder` to its current `OrderStatus`. | `CustomerOrder`, `OrderStatus` |
+
+### 🔄 Publishing Workflow
+
+The application has three distinct workflows:
+
+1.  **Orchard CMS (Owner/Admin):**
+
+    * The owner logs into Orchard CMS backend.
+
+    * Creates/updates the menu by adding new **Product** items.
+
+    * Creates and manages users/credentials for staff.
+
+    * *Technical note:* The owner publishes the static types (`Size`, `OrderStatus`) and the product catalog (`Product`).
+
+2.  **Customer Orders (User):**
+
+    * The customer navigates linearly through selection of dining location, menu, shopping cart, confirmation, and payment.
+
+    * Upon ordering, the following are dynamically generated and published:
+
+        * New **ProductQuantity** entries.
+
+        * A new **CustomerOrder** that links these quantities.
+
+    * *Technical note:* The customer indirectly creates content items through the purchase transaction.
+
+3.  **Staff Page (Staff):**
+
+    * Staff logs in on the `/staff` page.
+
+    * Selects an order (`New`) and clicks "Accept" (moved to `In Progress`).
+
+    * Manages the order by checking items in the detail view.
+
+    * Marks order as **'Order Ready'** (moved to `Completed`).
+
+    * *Technical note:* Staff updates the linked **HandleOrder** item to change `OrderStatus`.
+
+### 🤝 Integration between Frontend (React) and CMS (Orchard Core)
+
+The project uses a **client-server architecture** where a **React frontend** communicates with **OrchardCore CMS** via a **REST API** and **Server-Sent Events (SSE)**.
+
+| Technology | Role |
+| :--- | :--- |
+| **React Frontend** (Port 5173) | Handles user interface, order logic, and data display. |
+| **OrchardCore CMS** (Port 5001) | Backend, database, and API layer. Handles all data (products, orders, status). |
+| **REST API** | Handles CRUD operations (Get, Create, Update) for all Content Types (`/api/expand/{contentType}`, `/api/{contentType}`). |
+| **SSE** (`/api/sse/orders`) | Provides **real-time updates** of order status to both the Order Display screen and Staff View, without the client needing to reload or continuously poll. |
+
+---
+
+The project centralizes route definitions in the file src/routes.ts. Each page component exports a static property called route (for example: { path: '/staff', index: 10 }). The routes.ts file then performs the following main steps:
+
+    Collects all page components in a pages array.
+
+    Maps each component to a Route object: { element, ...component.route } where element is React.createElement(component).
+
+    Sorts the resulting Route array based on the index property (missing index is treated as 0).
+
+    Exports the compiled routes as default export and a small runtime manifest called compiledRoutesInfo.
+
+    Example output (illustrative – actual paths come from each component's static route):
+
+```json
+[
+  { "name": "OrderIndex", "path": "/", "index": 0 },
+  { "name": "StaffLogin", "path": "/staff/login" },
+]
+```
+
+---
+
+## 🚀 Installation and Start
+
+### Prerequisites
+
+- Node.js (version 18 or later)
+- npm (comes with Node.js)
+- .NET SDK (for Orchard Core backend)
+
+### Step 1: Install dependencies
+
+```bash
+npm install
+```
+
+This installs all necessary npm packages for the React frontend.
+
+### Step 2: Start the application
+
+```bash
+npm start
+```
+
+This command will:
+- Automatically restore the database from seed (first time only)
+- Start Orchard Core backend on http://localhost:5001
+- Start Vite dev server (React frontend) on http://localhost:5173
+
+### Step 3: Open the application
+
+After both servers have started, you can open:
+
+- **Frontend (Customer View)**: http://localhost:5173
+- **Backend API**: http://localhost:5001/api
+- **Admin UI**: http://localhost:5001/admin
+
+### Alternative commands
+
+```bash
+# Start only frontend (for development)
+npm run dev
+
+# Start only backend
+npm run backend
+
+# Build for production
+npm run build
+```
+
+---
+
+## 🔐 Authentication System
 
 The backend uses **session-based authentication** (not JWT). Users must log in to receive session cookies, which are then used for subsequent requests.
 
@@ -130,16 +295,18 @@ Content-Type: application/json
 
 New users are automatically assigned the **Customer** role. The `firstName`, `lastName`, and `phone` fields are optional.
 
-## REST API
+---
+
+## ⚡ REST API
 
 The application provides a custom REST API for all Orchard Core content types. All endpoints (except authentication) are protected by the permissions system.
 
-### Content Type: Pet
+### Content Type: Product
 
-#### Get All Pets
+#### Get All Products
 
 ```bash
-GET /api/Pet
+GET /api/Product
 ```
 
 **Response:**
@@ -147,44 +314,41 @@ GET /api/Pet
 [
   {
     "id": "4h72v3vvnffvzyjjyny8xgc2xz",
-    "title": "Fido",
-    "species": "dog",
-    "ownerId": "4hef7jjdb26sdxshq3ddg87mm1"
-  },
-  {
-    "id": "40sk48hnkka1tsfdkhhk6vprch",
-    "title": "Garfield",
-    "species": "cat",
-    "ownerId": "4237v01g4sxw41mybx97wg6adf"
+    "title": "Burger",
+    "category": "Meal",
+    "price": 99.50,
+    "sizeId": "4hef7jjdb26sdxshq3ddg87mm1"
   }
 ]
 ```
 
-#### Get Single Pet
+#### Get Single Product
 
 ```bash
-GET /api/Pet/4h72v3vvnffvzyjjyny8xgc2xz
+GET /api/Product/4h72v3vvnffvzyjjyny8xgc2xz
 ```
 
 **Response:**
 ```json
 {
   "id": "4h72v3vvnffvzyjjyny8xgc2xz",
-  "title": "Fido",
-  "species": "dog",
-  "ownerId": "4hef7jjdb26sdxshq3ddg87mm1"
+  "title": "Burger",
+  "category": "Meal",
+  "price": 99.50,
+  "sizeId": "4hef7jjdb26sdxshq3ddg87mm1"
 }
 ```
 
-#### Create Pet
+#### Create Product
 
 ```bash
-POST /api/Pet
+POST /api/Product
 Content-Type: application/json
 
 {
-  "title": "Buddy",
-  "species": "dog"
+  "title": "Pizza",
+  "category": "Meal",
+  "price": 120.00
 }
 ```
 
@@ -192,7 +356,7 @@ Content-Type: application/json
 ```json
 {
   "id": "4new1234example5678id",
-  "title": "Buddy"
+  "title": "Pizza"
 }
 ```
 
@@ -200,25 +364,25 @@ Content-Type: application/json
 
 When creating or updating content, use the **same format** you receive from `GET /api/{contentType}` (not the raw format from `/api/raw/{contentType}`). The API automatically unwraps single-property fields for cleaner JSON:
 
-- **TextField** - Plain string: `"species": "dog"`
-- **NumericField** - Plain number: `"age": 5`
+- **TextField** - Plain string: `"category": "Meal"`
+- **NumericField** - Plain number: `"price": 99.50`
 - **BooleanField** - Plain boolean: `"isActive": true`
-- **DateField** - ISO 8601 string: `"birthDate": "2020-01-15T00:00:00Z"`
+- **DateField** - ISO 8601 string: `"createdDate": "2020-01-15T00:00:00Z"`
 - **DateTimeField** - ISO 8601 string: `"createdAt": "2025-10-28T10:30:00Z"`
-- **HtmlField** - Plain HTML string: `"description": "<p>A friendly dog</p>"`
-- **MarkdownField** - Plain markdown string: `"bio": "# Fido\nA good boy"`
+- **HtmlField** - Plain HTML string: `"description": "<p>A delicious burger</p>"`
+- **MarkdownField** - Plain markdown string: `"bio": "# Pizza\nA classic dish"`
 
 Multi-property fields (like LinkField and MediaField) are best created through the admin UI.
 
-#### Update Pet
+#### Update Product
 
 ```bash
-PUT /api/Pet/4new1234example5678id
+PUT /api/Product/4new1234example5678id
 Content-Type: application/json
 
 {
-  "title": "Buddy Updated",
-  "species": "wolf"
+  "title": "Pizza Updated",
+  "price": 125.00
 }
 ```
 
@@ -226,16 +390,16 @@ Content-Type: application/json
 ```json
 {
   "id": "4new1234example5678id",
-  "title": "Buddy Updated"
+  "title": "Pizza Updated"
 }
 ```
 
 **Note:** PUT accepts the same field format as POST (see Supported Field Types above).
 
-#### Delete Pet
+#### Delete Product
 
 ```bash
-DELETE /api/Pet/4new1234example5678id
+DELETE /api/Product/4new1234example5678id
 ```
 
 **Response:**
@@ -253,24 +417,24 @@ The REST API provides three different endpoint variants for GET requests, each s
 Clean, minimal JSON structure with only the essential fields.
 
 ```bash
-GET /api/Pet
-GET /api/Pet/{id}
+GET /api/Product
+GET /api/Product/{id}
 ```
 
 #### Expand Endpoints: `/api/expand/{contentType}`
 Same clean structure, but with relationship fields automatically populated.
 
 ```bash
-GET /api/expand/Pet
-GET /api/expand/Pet/{id}
+GET /api/expand/Product
+GET /api/expand/Product/{id}
 ```
 
 #### Raw Endpoints: `/api/raw/{contentType}`
 Returns the raw Orchard Core ContentItem structure without cleanup or population. Useful for debugging, advanced queries, or when you need access to Orchard Core metadata.
 
 ```bash
-GET /api/raw/Pet
-GET /api/raw/Pet/{id}
+GET /api/raw/Product
+GET /api/raw/Product/{id}
 ```
 
 **Raw endpoint response includes:**
@@ -284,12 +448,12 @@ GET /api/raw/Pet/{id}
 
 ### Expanding Relationships
 
-For content types with relationships (like Pet → PetOwner), you can expand related content using the expand endpoints.
+For content types with relationships (like Product → Size), you can expand related content using the expand endpoints.
 
-#### Get Pet with Expanded Owner
+#### Get Product with Expanded Size
 
 ```bash
-GET /api/expand/Pet
+GET /api/expand/Product
 ```
 
 **Response:**
@@ -297,24 +461,13 @@ GET /api/expand/Pet
 [
   {
     "id": "40sk48hnkka1tsfdkhhk6vprch",
-    "title": "Garfield",
-    "species": "cat",
-    "ownerId": "4237v01g4sxw41mybx97wg6adf",
-    "owner": {
+    "title": "Burger",
+    "category": "Meal",
+    "price": 99.50,
+    "sizeId": "4237v01g4sxw41mybx97wg6adf",
+    "size": {
       "id": "4237v01g4sxw41mybx97wg6adf",
-      "title": "John Doe",
-      "email": "john@example.com"
-    }
-  },
-  {
-    "id": "4h72v3vvnffvzyjjyny8xgc2xz",
-    "title": "Fido",
-    "species": "dog",
-    "ownerId": "4hef7jjdb26sdxshq3ddg87mm1",
-    "owner": {
-      "id": "4hef7jjdb26sdxshq3ddg87mm1",
-      "title": "Jane Smith",
-      "email": "jane@example.com"
+      "title": "Large"
     }
   }
 ]
@@ -322,17 +475,18 @@ GET /api/expand/Pet
 
 **Using standard endpoint (no expansion):**
 ```bash
-GET /api/Pet
+GET /api/Product
 ```
 
-Returns only the owner ID (relationship not expanded):
+Returns only the size ID (relationship not expanded):
 ```json
 [
   {
     "id": "40sk48hnkka1tsfdkhhk6vprch",
-    "title": "Garfield",
-    "species": "cat",
-    "ownerId": "4237v01g4sxw41mybx97wg6adf"
+    "title": "Burger",
+    "category": "Meal",
+    "price": 99.50,
+    "sizeId": "4237v01g4sxw41mybx97wg6adf"
   }
 ]
 ```
@@ -357,17 +511,17 @@ Use the `where` parameter to filter results. Supports deep property paths with d
 **Examples:**
 
 ```bash
-# Filter by species
-GET /api/Pet?where=species=dog
+# Filter by category
+GET /api/Product?where=category=Meal
 
 # Filter with deep property path
-GET /api/expand/Pet?where=owner.title=John Doe
+GET /api/expand/Product?where=size.title=Large
 
 # Multiple conditions (use AND)
-GET /api/Pet?where=species=dog AND ownerId!=null
+GET /api/Product?where=category=Meal AND price>100
 
 # LIKE for substring matching
-GET /api/expand/Pet?where=owner.title LIKE Smith
+GET /api/Product?where=title LIKE Burger
 ```
 
 #### Sorting with ORDER BY
@@ -378,16 +532,16 @@ Use the `orderby` parameter to sort results. Prefix with `-` for descending orde
 
 ```bash
 # Sort by title (ascending)
-GET /api/Pet?orderby=title
+GET /api/Product?orderby=title
 
 # Sort by title (descending)
-GET /api/Pet?orderby=-title
+GET /api/Product?orderby=-title
 
 # Multiple sort fields
-GET /api/Pet?orderby=-species,title
+GET /api/Product?orderby=-category,title
 
 # Sort by deep property path
-GET /api/expand/Pet?orderby=owner.title
+GET /api/expand/Product?orderby=size.title
 ```
 
 #### Pagination with LIMIT and OFFSET
@@ -398,13 +552,13 @@ Use `limit` and `offset` parameters for pagination.
 
 ```bash
 # Get first 10 items
-GET /api/Pet?limit=10
+GET /api/Product?limit=10
 
 # Get next 10 items (skip first 10)
-GET /api/Pet?limit=10&offset=10
+GET /api/Product?limit=10&offset=10
 
 # Offset without limit (skip first 5 items)
-GET /api/Pet?offset=5
+GET /api/Product?offset=5
 ```
 
 #### Combining Query Parameters
@@ -412,26 +566,28 @@ GET /api/Pet?offset=5
 All query parameters can be combined for powerful queries:
 
 ```bash
-# Filter dogs, sort by title, paginate
-GET /api/Pet?where=species=dog&orderby=title&limit=10&offset=0
+# Filter meals, sort by price, paginate
+GET /api/Product?where=category=Meal&orderby=price&limit=10&offset=0
 
-# Filter by owner name with expansion, sort, and limit
-GET /api/expand/Pet?where=owner.title LIKE Doe&orderby=-species&limit=5
+# Filter by size with expansion, sort, and limit
+GET /api/expand/Product?where=size.title=Large&orderby=-price&limit=5
 ```
 
 **Complex Example:**
 
 ```bash
-GET /api/expand/Pet?where=species=cat AND owner.email LIKE example.com&orderby=-title&limit=10&offset=0
+GET /api/expand/Product?where=category=Meal AND price>100&orderby=-title&limit=10&offset=0
 ```
 
 This query:
-1. Expands the owner relationship
-2. Filters for cats whose owner's email contains "example.com"
+1. Expands the size relationship
+2. Filters for meals with price greater than 100
 3. Sorts by title (descending)
 4. Returns 10 results, starting from the first
 
-## Permissions System
+---
+
+## 🛡️ Permissions System
 
 Access to REST endpoints is controlled by **RestPermissions** - a custom content type that defines which roles can perform which HTTP methods on which content types.
 
@@ -446,12 +602,12 @@ Access to REST endpoints is controlled by **RestPermissions** - a custom content
 
 ### Example Permission
 
-**Title:** "Anonymous can view pets"
+**Title:** "Anonymous can view products"
 - **Roles:** `Anonymous`
-- **Content Types:** `Pet,PetOwner`
+- **Content Types:** `Product,Size`
 - **REST Methods:** `GET`
 
-This allows unauthenticated users to read Pet and PetOwner data, but not create, update, or delete.
+This allows unauthenticated users to read Product and Size data, but not create, update, or delete.
 
 ### Special Cases
 
@@ -469,20 +625,22 @@ This allows unauthenticated users to read Pet and PetOwner data, but not create,
 ### Permission Check Flow
 
 ```
-Request: GET /api/Pet
+Request: GET /api/Product
    ↓
 1. Extract user roles from session
    - Authenticated: ["Customer", "Anonymous"]
    - Not authenticated: ["Anonymous"]
    ↓
-2. Query RestPermissions for: contentType="Pet", method="GET"
+2. Query RestPermissions for: contentType="Product", method="GET"
    ↓
 3. Check if any user role has permission
    - If YES → Allow request
    - If NO → Return 403 Forbidden
 ```
 
-## Database Seed System
+---
+
+## 📦 Database Seed System
 
 The project uses a seed system to manage the Orchard Core database, making it easy for students to get started or reset their environment.
 
@@ -516,47 +674,20 @@ As a teacher/maintainer, run `npm run save` after making changes you want studen
 
 Students will get these changes when they clone the repo and run `npm start`.
 
-## Project Structure
+---
 
-```
-vite-and-react-and-orchard-core/
-├── backend/
-│   ├── RestRoutes/              # Custom REST API implementation
-│   │   ├── AuthEndpoints.cs     # Login/logout endpoints
-│   │   ├── GetRoutes.cs         # GET endpoints with expand support
-│   │   ├── PostRoutes.cs        # POST endpoints
-│   │   ├── PutRoutes.cs         # PUT endpoints
-│   │   ├── DeleteRoutes.cs      # DELETE endpoints
-│   │   ├── PermissionsACL.cs    # Permission checking logic
-│   │   ├── SystemRoutes.cs      # Admin UI helper endpoints
-│   │   ├── SetupRoutes.cs       # Route registration
-│   │   └── admin-script.js      # Admin UI enhancements
-│   ├── App_Data/                # Runtime database (git ignored)
-│   └── App_Data.seed/           # Seed database (committed)
-├── scripts/
-│   ├── save-seed.js             # Save database to seed
-│   ├── restore-seed.js          # Restore database from seed
-│   └── ensure-setup.js          # Auto-restore on first run
-├── src/                         # React frontend
-└── package.json
-```
+## 🔐 Login Credentials
 
-## Default Credentials
+### Admin User
+- **Username:** `tom`
+- **Password:** `Abcd1234!`
 
-- **Username:** `admin`
-- **Password:** `Password123!`
-- **Roles:** Administrator
+### Staff Login
+Staff logs in via the `/staff` page with their personal login credentials.
 
-## Sample Data
+---
 
-The seed includes:
-- **Content Types:** Pet, PetOwner, RestPermissions
-- **Sample Pets:** Fido, Garfield, Snoopy, etc.
-- **Sample Owners:** John Doe
-- **Roles:** Administrator, Customer, Anonymous, and others
-- **Default Permissions:** Examples showing how to configure API access
-
-## Development Workflow
+## 🛠️ Development Workflow
 
 ### Frontend Development
 ```bash
@@ -578,28 +709,75 @@ npm start           # Start both frontend and backend
 npm run restore     # Reset to seed state
 ```
 
-## Troubleshooting
+---
+
+## 🔧 Troubleshooting
 
 ### Port Already in Use
-If port 5001 is busy:
 
-**macOS/Linux:**
-```bash
-lsof -ti:5001 | xargs kill -9
-```
+If port 5001 or 5173 is busy:
 
 **Windows (PowerShell):**
 ```powershell
+# For port 5001
 Get-Process -Id (Get-NetTCPConnection -LocalPort 5001).OwningProcess | Stop-Process -Force
+
+# For port 5173
+Get-Process -Id (Get-NetTCPConnection -LocalPort 5173).OwningProcess | Stop-Process -Force
 ```
 
 **Windows (Command Prompt):**
 ```cmd
+# For port 5001
 for /f "tokens=5" %a in ('netstat -aon ^| find ":5001" ^| find "LISTENING"') do taskkill /F /PID %a
+
+# For port 5173
+for /f "tokens=5" %a in ('netstat -aon ^| find ":5173" ^| find "LISTENING"') do taskkill /F /PID %a
 ```
 
 ### Database Issues
+
 Reset to a clean (initial / last saved) state:
 ```bash
 npm run restore
 ```
+
+---
+
+## 📁 Project Structure
+
+```
+Orderapp/
+├── backend/
+│   ├── RestRoutes/              # Custom REST API implementation
+│   │   ├── AuthEndpoints.cs     # Login/logout endpoints
+│   │   ├── GetRoutes.cs         # GET endpoints with expand support
+│   │   ├── PostRoutes.cs        # POST endpoints
+│   │   ├── PutRoutes.cs         # PUT endpoints
+│   │   ├── DeleteRoutes.cs      # DELETE endpoints
+│   │   ├── PermissionsACL.cs    # Permission checking logic
+│   │   ├── SystemRoutes.cs      # Admin UI helper endpoints
+│   │   ├── SetupRoutes.cs       # Route registration
+│   │   └── admin-script.js       # Admin UI enhancements
+│   ├── App_Data/                # Runtime database (git ignored)
+│   └── App_Data.seed/           # Seed database (committed)
+├── scripts/
+│   ├── save-seed.js             # Save database to seed
+│   ├── restore-seed.js          # Restore database from seed
+│   └── ensure-setup.js          # Auto-restore on first run
+├── src/                         # React frontend
+│   ├── pages/                   # Page components
+│   ├── routes.ts                # Centralized route definition
+│   └── ...
+└── package.json
+```
+
+---
+
+## 📝 Sample Data
+
+The seed includes:
+- **Content Types:** Product, Size, OrderStatus, ProductQuantity, CustomerOrder, HandleOrder
+- **Sample Products:** Various menu items
+- **Roles:** Administrator, Customer, Staff, Anonymous, and others
+- **Default Permissions:** Examples showing how to configure API access
