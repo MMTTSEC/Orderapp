@@ -24,6 +24,29 @@ A food ordering system designed to be implemented on screens at the restaurant e
   <img src="https://github.com/user-attachments/assets/a770a181-f4c0-4a7f-b0b8-ea128c59544a" width="200">
 </p>
 
+## backoffice
+
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2edd8081-debf-4852-b2ce-760819c21aca" width="250">
+  <img src="https://github.com/user-attachments/assets/e9c94c35-88da-47d7-90c0-25d210e42952" width="250">
+  <img src="https://github.com/user-attachments/assets/6b74166a-ee87-4a4e-8f65-d4939b843649" width="250">
+</p>
+
+
+
+## Order display
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5423fe22-7c08-43ac-aaec-3675c327778c" width="300">
+  <img src="https://github.com/user-attachments/assets/f2a7c831-f7a6-46b5-a6e7-464fcd216d1f" width="300">
+</p>
+
+
+
+
+
+
 
 
 
