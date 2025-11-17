@@ -1,4 +1,4 @@
-# 🍔 Val - Restaurant Service / Order Food
+# 🍔 Ordering System & Kitchen Backoffice
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-MMTTSEC%2FOrderapp-blue?style=flat&logo=github)](https://github.com/MMTTSEC/Orderapp)
 
